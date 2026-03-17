@@ -24,18 +24,37 @@ async function onSmartEventsConfirmed(smartEvents) {
   snackbarRef.value.show(message);
   console.log(message);
 }
+
+async function onTemplateImported(template) {
+  await storeTemplate(template)
+
+  const message = "Template caricato: " + template.name;
+  
+  snackbarRef.value.show(message)
+  console.log(message)
+}
+
+function onTemplateImportError() {
+  const message = "Template NON caricato, JSON mal formattato";
+  
+  snackbarRef.value.show(message)
+  console.log(message)
+}
 </script>
 
 <template>
   <nav class="navbar">
     <RouterLink to="/">Nuovo evento</RouterLink>
     <RouterLink to="/template">Nuovo template</RouterLink>
+    <RouterLink to="/template/hub">Template Hub</RouterLink>
   </nav>
 
 
   <RouterView
     @smart-events-confirmed="onSmartEventsConfirmed"
     @template-created="onTemplateCreated"
+    @template-imported="onTemplateImported"
+    @import-error="onTemplateImportError"
   />
 
   <Snackbar ref="snackbarRef" />
