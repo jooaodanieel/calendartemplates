@@ -68,6 +68,10 @@ function create() {
   }
 
   emit(TEMPLATE_CREATED_EVENT, builder.build())
+  name.value = ''
+  duration.value = null
+  beforeBlocks.value = []
+  afterBlocks.value = []
 }
 </script>
 

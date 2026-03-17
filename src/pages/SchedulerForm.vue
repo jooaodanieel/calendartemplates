@@ -98,6 +98,13 @@ const SMART_EVENTS_CONFIRMED_EVENT = 'smart-events-confirmed'
 const emit = defineEmits([SMART_EVENTS_CONFIRMED_EVENT]);
 function confirm() {
   emit(SMART_EVENTS_CONFIRMED_EVENT, previewEvents.value);
+  title.value = ''
+  date.value = ''
+  time.value = ''
+  selectedTemplateId.value = ''
+  previewEvents.value = []
+  anchorIndex.value = 0
+  selectedTemplate.value = null
 }
 </script>
 
