@@ -69,10 +69,11 @@ function addBlock() {
 .add-btn {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: 25%;
   border: 1px solid #ccc;
-  background: white;
+  background: transparent;
   font-size: 1.2em;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
