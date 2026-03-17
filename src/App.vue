@@ -1,19 +1,28 @@
 <script setup>
 import { flushToGoogleCalendar } from './integrations/google_calendar';
 import { storeTemplate } from './integrations/persistence';
+import Snackbar from './components/Snackbar.vue';
+import { ref } from 'vue';
+
+const snackbarRef = ref(null);
 
 async function onTemplateCreated(template) {
   await storeTemplate(template);
 
-  console.log("template salvato:")
-  console.log(template);
+  const message = "Template salvato: " + template.name;
+
+  snackbarRef.value.show(message);
+  console.log(message);
 }
 
 async function onSmartEventsConfirmed(smartEvents) {
   await flushToGoogleCalendar(smartEvents)
 
-  console.log('eventi inviati a Google Calendar:')
-  console.log(smartEvents)
+  const message = 'eventi inviati a Google Calendar: ' + smartEvents.map(evt => evt.label)
+  .join(", ")
+
+  snackbarRef.value.show(message);
+  console.log(message);
 }
 </script>
 
@@ -28,6 +37,8 @@ async function onSmartEventsConfirmed(smartEvents) {
     @smart-events-confirmed="onSmartEventsConfirmed"
     @template-created="onTemplateCreated"
   />
+
+  <Snackbar ref="snackbarRef" />
 </template>
 
 <style>
