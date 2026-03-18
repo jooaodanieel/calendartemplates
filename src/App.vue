@@ -8,7 +8,9 @@ import { initGoogleAuth, isSignedIn, userInfo, signIn } from './integrations/goo
 const snackbarRef = ref(null);
 
 onMounted(() => {
-  initGoogleAuth()
+    const script = document.querySelector('script[src*="accounts.google.com"]')
+    script.addEventListener('load', () => initGoogleAuth())
+    if (window.google) initGoogleAuth()
 })
 
 async function onTemplateCreated(template) {

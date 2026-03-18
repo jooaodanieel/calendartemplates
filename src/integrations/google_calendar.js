@@ -8,6 +8,10 @@ export const accessToken = ref(null)
 export const userInfo = ref(null)
 
 export const initGoogleAuth = function () {
+    if (!window.google) {
+        console.error('Google Identity Services non ancora caricato')
+        return
+    }
     tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID,
         scope: SCOPES,
