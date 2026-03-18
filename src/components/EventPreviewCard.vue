@@ -40,14 +40,12 @@ const isSameDay = computed(() => props.event.day === props.event.endDay)
   padding: 8px 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  width: 100%;
 }
 
 .anchor {
   margin: 12px 0;
   border: 3px solid #ccc;
   font-weight: 700;
-  width: calc(100% - 3px);
 }
 
 .event-info {

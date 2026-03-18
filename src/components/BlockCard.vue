@@ -23,6 +23,7 @@ defineProps({
   border: 1px solid #ccc;
   border-radius: 8px;
   margin: 4px 0;
+  width: 75%;
 }
 .block-duration {
   color: #888;

@@ -110,12 +110,12 @@ function confirm() {
 
 <style scoped>
 .scheduler-form {
-  max-width: 400px;
-  margin: 0 auto;
+  max-width: 750px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin: 0 auto;
 }
 .field {
   display: grid;

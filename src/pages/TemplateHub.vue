@@ -135,6 +135,7 @@ function load() {
   overflow-x: auto;
   white-space: pre-wrap;
   text-align: left;
+  color: #424242;
 
   max-height: 20em;
   overflow-y: scroll;
