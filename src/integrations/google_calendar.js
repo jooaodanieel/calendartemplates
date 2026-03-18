@@ -39,5 +39,25 @@ export const isSignedIn = function () {
 
 export const flushToGoogleCalendar = async function (smartEvents) {
     if (!isSignedIn()) await signIn()
-    console.log("Qui verrà l'integrazione con Google Calendar API")
+
+    for (const event of smartEvents) {
+        await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken.value}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                summary: event.label,
+                start: {
+                    dateTime: event.startDateToISO(),
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                },
+                end: {
+                    dateTime: event.endDateToISO(),
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                }
+            })
+        })
+    }
 }
