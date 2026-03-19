@@ -1,14 +1,13 @@
 <script setup>
 import {
+  accessToken,
   flushToGoogleCalendar,
-  trySilentSignIn,
 } from './integrations/google_calendar';
 import { storeTemplate } from './integrations/persistence';
 import Snackbar from './components/Snackbar.vue';
 import { onMounted, ref } from 'vue';
 import {
   initGoogleAuth,
-  isSignedIn,
   userInfo,
   signIn,
 } from './integrations/google_calendar';
@@ -18,14 +17,10 @@ const snackbarRef = ref(null);
 onMounted(() => {
   const script = document.querySelector('script[src*="accounts.google.com"]');
 
-  script.addEventListener('load', async () => {
-    initGoogleAuth();
-    await trySilentSignIn();
-  });
-
   if (window.google) {
     initGoogleAuth();
-    trySilentSignIn();
+  } else {
+    script.addEventListener('load', initGoogleAuth);
   }
 });
 
@@ -72,7 +67,7 @@ function onTemplateImportError() {
     <RouterLink to="/template">Nuovo template</RouterLink>
     <RouterLink to="/template/hub">Template Hub</RouterLink>
 
-    <button v-if="!isSignedIn()" @click="signIn()" class="profile-badge">
+    <button v-if="!accessToken" @click="signIn()" class="profile-badge">
       Accedi con Google
     </button>
     <div v-else-if="userInfo" class="profile-badge">
