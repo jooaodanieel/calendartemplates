@@ -41,6 +41,27 @@ export const signIn = function () {
   });
 };
 
+export const trySilentSignIn = function () {
+  return new Promise((resolve) => {
+    tokenClient.callback = async (response) => {
+      if (response.error) {
+        resolve(false);
+        return;
+      }
+      accessToken.value = response.access_token;
+      const resp = await fetch(
+        'https://www.googleapis.com/oauth2/v3/userinfo',
+        {
+          headers: { Authorization: `Bearer ${accessToken.value}` },
+        }
+      );
+      userInfo.value = await resp.json();
+      resolve(true);
+    };
+    tokenClient.requestAccessToken({ prompt: 'none' });
+  });
+};
+
 export const isSignedIn = function () {
   return accessToken.value !== null;
 };

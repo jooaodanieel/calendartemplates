@@ -1,5 +1,8 @@
 <script setup>
-import { flushToGoogleCalendar } from './integrations/google_calendar';
+import {
+  flushToGoogleCalendar,
+  trySilentSignIn,
+} from './integrations/google_calendar';
 import { storeTemplate } from './integrations/persistence';
 import Snackbar from './components/Snackbar.vue';
 import { onMounted, ref } from 'vue';
@@ -14,8 +17,16 @@ const snackbarRef = ref(null);
 
 onMounted(() => {
   const script = document.querySelector('script[src*="accounts.google.com"]');
-  script.addEventListener('load', () => initGoogleAuth());
-  if (window.google) initGoogleAuth();
+
+  script.addEventListener('load', async () => {
+    initGoogleAuth();
+    await trySilentSignIn();
+  });
+
+  if (window.google) {
+    initGoogleAuth();
+    trySilentSignIn();
+  }
 });
 
 async function onTemplateCreated(template) {
