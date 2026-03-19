@@ -1,6 +1,5 @@
 <template>
   <div class="template-hub">
-
     <section class="hub-section">
       <h3>Esporta</h3>
       <div class="field">
@@ -14,10 +13,10 @@
       </div>
 
       <div v-if="exportJson" class="preview-wrapper">
-          <div class="button-header">
-              <button class="copy-button" @click="copyToClipboard">copy</button>
-          </div>
-          <pre class="json-preview">{{ exportJson }}</pre>
+        <div class="button-header">
+          <button class="copy-button" @click="copyToClipboard">copy</button>
+        </div>
+        <pre class="json-preview">{{ exportJson }}</pre>
       </div>
     </section>
 
@@ -26,29 +25,28 @@
       <textarea v-model="importJson" placeholder="Incolla il JSON qui..." />
       <button @click="load">Carica</button>
     </section>
-
   </div>
 
   <Snackbar ref="snackbarRef" />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { db } from '../integrations/persistence'
-import Snackbar from '../components/Snackbar.vue'
+import { ref, onMounted } from 'vue';
+import { db } from '../integrations/persistence';
+import Snackbar from '../components/Snackbar.vue';
 
-const templates = ref([])
-const selectedExportId = ref('')
-const exportJson = ref('')
-const importJson = ref('')
+const templates = ref([]);
+const selectedExportId = ref('');
+const exportJson = ref('');
+const importJson = ref('');
 
-const snackbarRef = ref('')
+const snackbarRef = ref('');
 
-const emit = defineEmits(['template-imported'])
+const emit = defineEmits(['template-imported']);
 
 onMounted(async () => {
-  templates.value = await db.templates.toArray()
-})
+  templates.value = await db.templates.toArray();
+});
 
 function copyToClipboard() {
   navigator.clipboard.writeText(exportJson.value);
@@ -56,20 +54,20 @@ function copyToClipboard() {
 }
 
 function onExportSelect() {
-  const raw = templates.value.find(t => t.id === selectedExportId.value)
-  if (!raw) return
-  const { id, ...withoutId } = raw
-  exportJson.value = JSON.stringify(withoutId, null, 2)
+  const raw = templates.value.find((t) => t.id === selectedExportId.value);
+  if (!raw) return;
+  const { id, ...withoutId } = raw;
+  exportJson.value = JSON.stringify(withoutId, null, 2);
 }
 
 function load() {
-  if (!importJson.value) return
+  if (!importJson.value) return;
   try {
-    const parsed = JSON.parse(importJson.value)
-    emit('template-imported', parsed)
-    importJson.value = ''
+    const parsed = JSON.parse(importJson.value);
+    emit('template-imported', parsed);
+    importJson.value = '';
   } catch {
-    emit('import-error')
+    emit('import-error');
   }
 }
 </script>

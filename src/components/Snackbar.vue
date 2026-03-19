@@ -7,22 +7,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const visible = ref(false)
-const message = ref('')
-let timeout = null
+const visible = ref(false);
+const message = ref('');
+let timeout = null;
 
 function show(text, duration = 3000) {
-  if (timeout) clearTimeout(timeout)
-  message.value = text
-  visible.value = true
+  if (timeout) clearTimeout(timeout);
+  message.value = text;
+  visible.value = true;
   timeout = setTimeout(() => {
-    visible.value = false
-  }, duration)
+    visible.value = false;
+  }, duration);
 }
 
-defineExpose({ show })
+defineExpose({ show });
 </script>
 
 <style scoped>
@@ -41,7 +41,9 @@ defineExpose({ show })
 }
 .snackbar-enter-active,
 .snackbar-leave-active {
-  transition: opacity 0.3s, transform 0.3s;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 }
 .snackbar-enter-from,
 .snackbar-leave-to {

@@ -9,9 +9,9 @@
 defineProps({
   block: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 </script>
 
 <style scoped>

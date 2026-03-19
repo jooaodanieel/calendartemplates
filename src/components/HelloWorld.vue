@@ -1,41 +1,25 @@
 <script setup>
-import { ref } from 'vue'
-import viteLogo from '../assets/vite.svg'
-import heroImg from '../assets/hero.png'
-import vueLogo from '../assets/vue.svg'
-import { Template } from '../models/template'
+import { ref } from 'vue';
+import viteLogo from '../assets/vite.svg';
+import heroImg from '../assets/hero.png';
+import vueLogo from '../assets/vue.svg';
+import { Template } from '../models/template';
 
-const count = ref(0)
+const count = ref(0);
 
 const template = Template.builder()
-    .for("Corso Palestra")
-    .withDurationMinutes(50)
-    .precededBy(
-        Template.builder()
-            .for("Andata")
-            .withDurationMinutes(15)
-)
-  .precededBy(
-      Template.builder()
-            .for("Stretching")
-            .withDurationMinutes(15)
-    )
-    .followedBy(
-        Template.builder()
-            .for("Doccia")
-            .withDurationMinutes(10)
-)
-    .followedBy(
-        Template.builder()
-            .for("Ritorno")
-            .withDurationMinutes(15)
-    )
-  .build()
+  .for('Corso Palestra')
+  .withDurationMinutes(50)
+  .precededBy(Template.builder().for('Andata').withDurationMinutes(15))
+  .precededBy(Template.builder().for('Stretching').withDurationMinutes(15))
+  .followedBy(Template.builder().for('Doccia').withDurationMinutes(10))
+  .followedBy(Template.builder().for('Ritorno').withDurationMinutes(15))
+  .build();
 
 console.log(template);
 
-const smartEvents = template.applyTo("SkillX", "18/03/2026", "7.10");
-console.log(smartEvents)
+const smartEvents = template.applyTo('SkillX', '18/03/2026', '7.10');
+console.log(smartEvents);
 </script>
 
 <template>

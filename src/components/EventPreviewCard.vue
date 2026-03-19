@@ -6,7 +6,7 @@
       <div class="event-info">{{ event.day }}</div>
       <div v-if="!isSameDay" class="event-info">{{ event.endDay }}</div>
     </div>
-    
+
     <div class="info-wrapper">
       <div class="event-info">{{ event.time }}</div>
       <div class="event-info">{{ event.endTime }}</div>
@@ -20,15 +20,15 @@ import { computed } from 'vue';
 const props = defineProps({
   event: {
     type: Object,
-    required: true
+    required: true,
   },
   isAnchor: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const isSameDay = computed(() => props.event.day === props.event.endDay)
+const isSameDay = computed(() => props.event.day === props.event.endDay);
 </script>
 
 <style scoped>

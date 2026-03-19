@@ -13,7 +13,11 @@
     </div>
 
     <div class="section">
-      <BlockList :blocks="beforeBlocks" position="before" @add-block="addBefore" />
+      <BlockList
+        :blocks="beforeBlocks"
+        position="before"
+        @add-block="addBefore"
+      />
 
       <div class="anchor-card">
         <span>{{ name || 'Nome template' }}</span>
@@ -28,50 +32,54 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import BlockList from '../components/BlockList.vue'
-import { Template } from '../models/template'
+import { ref } from 'vue';
+import BlockList from '../components/BlockList.vue';
+import { Template } from '../models/template';
 
-const name = ref('')
-const duration = ref(null)
-const beforeBlocks = ref([])
-const afterBlocks = ref([])
+const name = ref('');
+const duration = ref(null);
+const beforeBlocks = ref([]);
+const afterBlocks = ref([]);
 
-const TEMPLATE_CREATED_EVENT = 'template-created'
-const emit = defineEmits([TEMPLATE_CREATED_EVENT])
+const TEMPLATE_CREATED_EVENT = 'template-created';
+const emit = defineEmits([TEMPLATE_CREATED_EVENT]);
 
 function addBefore(block) {
-  beforeBlocks.value.unshift(block)
+  beforeBlocks.value.unshift(block);
 }
 
 function addAfter(block) {
-  afterBlocks.value.push(block)
+  afterBlocks.value.push(block);
 }
 
 function create() {
-  if (!name.value || !duration.value) return
+  if (!name.value || !duration.value) return;
 
   let builder = Template.builder()
     .for(name.value)
-    .withDurationMinutes(duration.value)
+    .withDurationMinutes(duration.value);
 
   for (const block of beforeBlocks.value) {
     builder = builder.precededBy(
-      Template.builder().for(block.name).withDurationMinutes(block.durationInMinutes)
-    )
+      Template.builder()
+        .for(block.name)
+        .withDurationMinutes(block.durationInMinutes)
+    );
   }
 
   for (const block of afterBlocks.value) {
     builder = builder.followedBy(
-      Template.builder().for(block.name).withDurationMinutes(block.durationInMinutes)
-    )
+      Template.builder()
+        .for(block.name)
+        .withDurationMinutes(block.durationInMinutes)
+    );
   }
 
-  emit(TEMPLATE_CREATED_EVENT, builder.build())
-  name.value = ''
-  duration.value = null
-  beforeBlocks.value = []
-  afterBlocks.value = []
+  emit(TEMPLATE_CREATED_EVENT, builder.build());
+  name.value = '';
+  duration.value = null;
+  beforeBlocks.value = [];
+  afterBlocks.value = [];
 }
 </script>
 

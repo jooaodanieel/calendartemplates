@@ -1,16 +1,16 @@
-import Dexie from 'dexie'
+import Dexie from 'dexie';
 
-export const db = new Dexie('calendar-templates')
+export const db = new Dexie('calendar-templates');
 
 db.version(1).stores({
-    templates: '++id, name'
-})
+  templates: '++id, name',
+});
 
 export const storeTemplate = async function (template) {
-    await db.templates.add({
-        name: template.name,
-        durationInMinutes: template.durationInMinutes,
-        before: template.before,
-        after: template.after
-    })
-}
+  await db.templates.add({
+    name: template.name,
+    durationInMinutes: template.durationInMinutes,
+    before: template.before,
+    after: template.after,
+  });
+};

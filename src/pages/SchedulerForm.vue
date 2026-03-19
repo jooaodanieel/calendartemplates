@@ -44,67 +44,68 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
-import EventPreviewCard from '../components/EventPreviewCard.vue'
-import { Template } from '../models/template'
-import { db } from '../integrations/persistence'
-import { TimeCalculations } from '../utils/time_calculations'
+import { ref, watch, onMounted } from 'vue';
+import EventPreviewCard from '../components/EventPreviewCard.vue';
+import { Template } from '../models/template';
+import { db } from '../integrations/persistence';
+import { TimeCalculations } from '../utils/time_calculations';
 
-const title = ref('')
-const date = ref('')
-const time = ref('')
-const selectedTemplateId = ref('')
-const templates = ref([])
-const previewEvents = ref([])
-const anchorIndex = ref(0)
-const selectedTemplate = ref(null)
+const title = ref('');
+const date = ref('');
+const time = ref('');
+const selectedTemplateId = ref('');
+const templates = ref([]);
+const previewEvents = ref([]);
+const anchorIndex = ref(0);
+const selectedTemplate = ref(null);
 
 onMounted(async () => {
-  templates.value = await db.templates.toArray()
-})
+  templates.value = await db.templates.toArray();
+});
 
 function onTemplateChange() {
-  const raw = templates.value.find(t => t.id === selectedTemplateId.value)
-  if (!raw) return
+  const raw = templates.value.find((t) => t.id === selectedTemplateId.value);
+  if (!raw) return;
 
   selectedTemplate.value = new Template(
     raw.name,
     raw.durationInMinutes,
     raw.before,
     raw.after
-  )
+  );
 
-  updatePreview()
+  updatePreview();
 }
 
 function updatePreview() {
-  if (!selectedTemplate.value || !date.value || !time.value) return
+  if (!selectedTemplate.value || !date.value || !time.value) return;
 
-    const events = selectedTemplate.value
-        .applyTo(
-            title.value || selectedTemplate.value.name,
-            date.value,
-            time.value
-    )
+  const events = selectedTemplate.value.applyTo(
+    title.value || selectedTemplate.value.name,
+    date.value,
+    time.value
+  );
 
-  const sorted = TimeCalculations.sortEvents(events);  
-  previewEvents.value = sorted
-  anchorIndex.value = sorted.findIndex(e => e.label === (title.value || selectedTemplate.value.name))
+  const sorted = TimeCalculations.sortEvents(events);
+  previewEvents.value = sorted;
+  anchorIndex.value = sorted.findIndex(
+    (e) => e.label === (title.value || selectedTemplate.value.name)
+  );
 }
 
-watch([title, date, time], updatePreview)
+watch([title, date, time], updatePreview);
 
-const SMART_EVENTS_CONFIRMED_EVENT = 'smart-events-confirmed'
+const SMART_EVENTS_CONFIRMED_EVENT = 'smart-events-confirmed';
 const emit = defineEmits([SMART_EVENTS_CONFIRMED_EVENT]);
 function confirm() {
   emit(SMART_EVENTS_CONFIRMED_EVENT, previewEvents.value);
-  title.value = ''
-  date.value = ''
-  time.value = ''
-  selectedTemplateId.value = ''
-  previewEvents.value = []
-  anchorIndex.value = 0
-  selectedTemplate.value = null
+  title.value = '';
+  date.value = '';
+  time.value = '';
+  selectedTemplateId.value = '';
+  previewEvents.value = [];
+  anchorIndex.value = 0;
+  selectedTemplate.value = null;
 }
 </script>
 
