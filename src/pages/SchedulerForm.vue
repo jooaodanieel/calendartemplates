@@ -70,7 +70,8 @@ function onTemplateChange() {
     raw.name,
     raw.durationInMinutes,
     raw.before,
-    raw.after
+    raw.after,
+    raw.isBusy
   );
 
   updatePreview();

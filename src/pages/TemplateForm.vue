@@ -10,6 +10,11 @@
       <input v-model.number="duration" type="number" />
     </div>
 
+    <div class="field">
+      <label>Mark as <strong>busy</strong></label>
+      <input type="checkbox" v-model="isBusy">
+    </div>
+
     <div class="section">
       <BlockList
         :blocks="beforeBlocks"
@@ -37,6 +42,7 @@ import { Template } from '../models/template';
 
 const name = ref('');
 const duration = ref(null);
+const isBusy = ref(true);
 const beforeBlocks = ref([]);
 const afterBlocks = ref([]);
 
@@ -56,7 +62,8 @@ function create() {
 
   let builder = Template.builder()
     .for(name.value)
-    .withDurationMinutes(duration.value);
+    .withDurationMinutes(duration.value)
+    .markAsBusy(isBusy.value);
 
   for (const block of beforeBlocks.value) {
     builder = builder.precededBy(

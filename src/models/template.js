@@ -6,11 +6,12 @@ export class Template {
     return new TemplateBuilder();
   }
 
-  constructor(name, durationInMinutes, before, after) {
+  constructor(name, durationInMinutes, before, after, isBusy) {
     this.name = name;
     this.durationInMinutes = durationInMinutes;
     this.before = before;
     this.after = after;
+    this.isBusy = isBusy === null || isBusy === undefined ? true : isBusy;
   }
 
   applyTo(label, day, time) {
@@ -31,7 +32,7 @@ export class Template {
       this.durationInMinutes
     );
 
-    return new SmartEvent(label, day, time, entDay, endTime);
+    return new SmartEvent(label, day, time, entDay, endTime, this.isBusy);
   }
 
   generateWrappingEvents(day, time) {
@@ -83,7 +84,8 @@ export class Template {
       startDay,
       startTime,
       refDay,
-      refTime
+      refTime,
+      this.isBusy
     );
   }
 
@@ -103,7 +105,8 @@ export class Template {
       refDay,
       refTime,
       endDay,
-      endTime
+      endTime,
+      this.isBusy
     );
   }
 }
@@ -114,10 +117,17 @@ export class TemplateBuilder {
     this.durationInMinutes = null;
     this.before = [];
     this.after = [];
+    this.isBusy = true;
   }
 
   for(name) {
     this.name = name;
+
+    return this;
+  }
+
+  markAsBusy(check) {
+    this.isBusy = check;
 
     return this;
   }
@@ -149,7 +159,8 @@ export class TemplateBuilder {
       this.name,
       this.durationInMinutes,
       this.before,
-      this.after
+      this.after,
+      this.isBusy
     );
   }
 }

@@ -1,10 +1,11 @@
 export class SmartEvent {
-  constructor(label, day, time, endDay, endTime) {
+  constructor(label, day, time, endDay, endTime, isBusy) {
     this.label = label;
     this.day = day;
     this.time = time;
     this.endDay = endDay;
     this.endTime = endTime;
+    this.isBusy = isBusy;
   }
 
   startDateToISO() {
