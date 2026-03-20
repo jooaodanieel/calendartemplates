@@ -1,15 +1,19 @@
 import { ref } from 'vue';
+import { httpClient as http } from '../utils/http_client';
+import { localStorage as ls } from '../utils/local_storage';
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const SCOPES =
   'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
 
+export const USER_INFO_API_URL =
+  'https://www.googleapis.com/oauth2/v3/userinfo';
+export const EVENT_API_URL =
+  'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+
 let tokenClient = null;
 export const accessToken = ref(null);
 export const userInfo = ref(null);
-
-const LS_TOKEN = 'gsi_token';
-const LS_USER = 'gsi_user';
 
 export const initGoogleAuth = function () {
   if (!window.google) {
@@ -23,12 +27,12 @@ export const initGoogleAuth = function () {
     callback: () => {},
   });
 
-  const token = window.localStorage.getItem(LS_TOKEN);
-  const user = window.localStorage.getItem(LS_USER);
+  const token = ls.getToken();
+  const user = ls.getUser();
 
   if (token) {
     accessToken.value = token;
-    userInfo.value = JSON.parse(user);
+    userInfo.value = user;
   }
 };
 
@@ -40,16 +44,11 @@ export const signIn = function () {
         return;
       }
       accessToken.value = response.access_token;
-      const resp = await fetch(
-        'https://www.googleapis.com/oauth2/v3/userinfo',
-        {
-          headers: { Authorization: `Bearer ${accessToken.value}` },
-        }
-      );
-      userInfo.value = await resp.json();
 
-      window.localStorage.setItem(LS_TOKEN, accessToken.value);
-      window.localStorage.setItem(LS_USER, JSON.stringify(userInfo.value));
+      userInfo.value = await http.getUserInfo(accessToken.value);
+
+      ls.setToken(accessToken.value);
+      ls.setUser(userInfo.value);
 
       resolve();
     };
@@ -65,35 +64,15 @@ export const flushToGoogleCalendar = async function (smartEvents) {
   if (!isSignedIn()) await signIn();
 
   const flush = async function (evt) {
-    return await fetch(
-      'https://www.googleapis.com/calendar/v3/calendars/primary/events',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken.value}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          summary: evt.label,
-          start: {
-            dateTime: evt.startDateToISO(),
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          },
-          end: {
-            dateTime: evt.endDateToISO(),
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          },
-        }),
-      }
-    );
+    return await http.postEvent(accessToken.value, evt);
   };
 
   for (const event of smartEvents) {
     const response = await flush(event);
 
     const retryAfterReLoggingIn = async () => {
-      window.localStorage.removeItem(LS_TOKEN);
-      window.localStorage.removeItem(LS_USER);
+      ls.deleteToken();
+      ls.deleteUser();
 
       accessToken.value = null;
       userInfo.value = null;
