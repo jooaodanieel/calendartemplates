@@ -1,16 +1,10 @@
 <script setup>
-import {
-  accessToken,
-  flushToGoogleCalendar,
-} from './integrations/google_calendar';
+import { flushToGoogleCalendar } from './integrations/google_calendar';
 import { storeTemplate } from './integrations/persistence';
 import Snackbar from './components/Snackbar.vue';
 import { onMounted, ref } from 'vue';
-import {
-  initGoogleAuth,
-  userInfo,
-  signIn,
-} from './integrations/google_calendar';
+import { initGoogleAuth } from './integrations/google_calendar';
+import Navbar from './components/Navbar.vue';
 
 const snackbarRef = ref(null);
 
@@ -62,19 +56,7 @@ function onTemplateImportError() {
 </script>
 
 <template>
-  <nav class="navbar">
-    <RouterLink to="/">Nuovo evento</RouterLink>
-    <RouterLink to="/template">Nuovo template</RouterLink>
-    <RouterLink to="/template/hub">Template Hub</RouterLink>
-
-    <button v-if="!accessToken" @click="signIn()" class="profile-badge">
-      Accedi con Google
-    </button>
-    <div v-else-if="userInfo" class="profile-badge">
-      <img :src="userInfo.picture" :alt="userInfo.name" class="profile-pic" />
-      <span>{{ userInfo.name }}</span>
-    </div>
-  </nav>
+  <Navbar />
 
   <RouterView
     @smart-events-confirmed="onSmartEventsConfirmed"
@@ -85,50 +67,3 @@ function onTemplateImportError() {
 
   <Snackbar ref="snackbarRef" />
 </template>
-
-<style>
-.navbar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.profile-badge {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background-color: var(--bg);
-  color: var(--text-h);
-  font-size: 14px;
-  font-family: var(--sans);
-  cursor: pointer;
-  transition: box-shadow 0.2s;
-}
-
-.profile-badge:hover {
-  box-shadow: var(--shadow);
-}
-
-button.profile-badge::before {
-  content: '';
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  background-image: url('https://www.google.com/favicon.ico');
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.profile-pic {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-}
-</style>
