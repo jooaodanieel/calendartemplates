@@ -33,6 +33,9 @@ import { accessToken, userInfo } from '../integrations/google_calendar';
   align-items: center;
   gap: 10px;
   width: 100%;
+  padding: 5px 0px;
+  border-bottom: 1px solid rgba(249, 249, 249, 0.15);
+  box-shadow: 0px 5px rgba(249, 249, 249, 0.15);
 }
 
 .profile-badge {
