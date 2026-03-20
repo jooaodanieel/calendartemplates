@@ -1,10 +1,10 @@
 <script setup>
+import { onMounted, ref } from 'vue';
+import Navbar from './components/Navbar.vue';
+import Snackbar from './components/Snackbar.vue';
 import { flushToGoogleCalendar } from './integrations/google_calendar';
 import { storeTemplate } from './integrations/persistence';
-import Snackbar from './components/Snackbar.vue';
-import { onMounted, ref } from 'vue';
 import { initGoogleAuth } from './integrations/google_calendar';
-import Navbar from './components/Navbar.vue';
 
 const snackbarRef = ref(null);
 

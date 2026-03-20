@@ -1,6 +1,5 @@
 <template>
   <Main title="Nuovo evento">
-
     <div class="field">
       <label>Titolo</label>
       <input v-model="title" placeholder="es. Skill X" />
@@ -45,10 +44,10 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import EventPreviewCard from '../components/EventPreviewCard.vue';
+import Main from '../components/Main.vue';
 import { Template } from '../models/template';
 import { db } from '../integrations/persistence';
 import { TimeCalculations } from '../utils/time_calculations';
-import Main from '../components/Main.vue';
 
 const title = ref('');
 const date = ref('');
@@ -110,7 +109,6 @@ function confirm() {
 </script>
 
 <style scoped>
-
 .field {
   display: grid;
   grid-template-columns: 90px 1fr;

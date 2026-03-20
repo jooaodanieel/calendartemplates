@@ -32,9 +32,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { db } from '../integrations/persistence';
 import Snackbar from '../components/Snackbar.vue';
 import Main from '../components/Main.vue';
+import { db } from '../integrations/persistence';
 
 const templates = ref([]);
 const selectedExportId = ref('');

@@ -1,6 +1,5 @@
 <template>
   <Main title="Nuovo template">
-
     <div class="field">
       <label>Nome</label>
       <input v-model="name" placeholder="es. Corso palestra" />
@@ -33,8 +32,8 @@
 <script setup>
 import { ref } from 'vue';
 import BlockList from '../components/BlockList.vue';
-import { Template } from '../models/template';
 import Main from '../components/Main.vue';
+import { Template } from '../models/template';
 
 const name = ref('');
 const duration = ref(null);
@@ -84,7 +83,6 @@ function create() {
 </script>
 
 <style scoped>
-
 .field {
   display: grid;
   grid-template-columns: 120px 1fr;
