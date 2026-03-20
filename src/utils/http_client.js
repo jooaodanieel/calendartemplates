@@ -1,5 +1,6 @@
 import {
   EVENT_API_URL,
+  smartEventToGoogleEvent,
   USER_INFO_API_URL,
 } from '../integrations/google_calendar';
 
@@ -13,23 +14,15 @@ export const httpClient = {
   },
 
   postEvent: async function (token, evt) {
+    const googleEvent = smartEventToGoogleEvent(evt);
+
     return await fetch(EVENT_API_URL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        summary: evt.label,
-        start: {
-          dateTime: evt.startDateToISO(),
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        },
-        end: {
-          dateTime: evt.startDateToISO(),
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        },
-      }),
+      body: JSON.stringify(googleEvent),
     });
   },
 };
