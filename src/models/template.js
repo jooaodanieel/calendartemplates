@@ -6,6 +6,20 @@ export class Template {
     return new TemplateBuilder();
   }
 
+  static hydrate(dbRecord) {
+    const { name, durationInMinutes, before, after, isBusy, colorId } =
+      dbRecord;
+
+    return new Template(
+      name,
+      durationInMinutes,
+      before,
+      after,
+      isBusy,
+      colorId
+    );
+  }
+
   constructor(name, durationInMinutes, before, after, isBusy, colorId) {
     this.name = name;
     this.durationInMinutes = durationInMinutes;
@@ -13,6 +27,17 @@ export class Template {
     this.after = after;
     this.isBusy = isBusy;
     this.colorId = colorId;
+  }
+
+  displayString(attr) {
+    const listAttrs = ['before', 'after'];
+    if (listAttrs.includes(attr)) {
+      return this[attr]
+        .map((sub) => `${sub.name} (${sub.durationInMinutes} min)`)
+        .join(', ');
+    }
+
+    return this[attr];
   }
 
   applyTo(label, day, time) {

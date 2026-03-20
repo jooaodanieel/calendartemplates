@@ -2,28 +2,38 @@
   <Main title="Template Hub">
     <section class="hub-section">
       <h3>Esporta</h3>
-      <div class="field">
-        <label>Template</label>
-        <select v-model="selectedExportId" @change="onExportSelect">
-          <option disabled value="">Scegli...</option>
-          <option v-for="t in templates" :key="t.id" :value="t.id">
-            {{ t.name }}
-          </option>
-        </select>
-      </div>
 
-      <div v-if="exportJson" class="preview-wrapper">
-        <div class="button-header">
-          <button class="copy-button" @click="copyToClipboard">copy</button>
-        </div>
-        <pre class="json-preview">{{ exportJson }}</pre>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th v-for="attr in attrs">{{ attr }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="template of templates">
+              <td v-for="attr in attrs">
+                {{ template.displayString(attr) }}
+              </td>
+              <td>
+                <button
+                  class="copy-button"
+                  @click="copyRowToClipboard(template)"
+                >
+                  copy
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
     <section class="hub-section">
       <h3>Importa</h3>
       <textarea v-model="importJson" placeholder="Incolla il JSON qui..." />
-      <button @click="load">Carica</button>
+      <button class="load" @click="load">Carica</button>
     </section>
   </Main>
 
@@ -31,14 +41,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { Template } from '../models/template';
 import Snackbar from '../components/Snackbar.vue';
 import Main from '../components/Main.vue';
-import { db } from '../integrations/persistence';
+import { allTemplates } from '../integrations/persistence';
 
 const templates = ref([]);
-const selectedExportId = ref('');
-const exportJson = ref('');
+const attrs = computed(() => Object.keys(new Template()));
 const importJson = ref('');
 
 const snackbarRef = ref('');
@@ -46,19 +56,13 @@ const snackbarRef = ref('');
 const emit = defineEmits(['template-imported']);
 
 onMounted(async () => {
-  templates.value = await db.templates.toArray();
+  templates.value = await allTemplates();
 });
 
-function copyToClipboard() {
-  navigator.clipboard.writeText(exportJson.value);
+function copyRowToClipboard(template) {
+  const { id, ...withoutId } = template;
+  navigator.clipboard.writeText(JSON.stringify(withoutId));
   snackbarRef.value.show("JSON coppiato nell'area di trasferimento");
-}
-
-function onExportSelect() {
-  const raw = templates.value.find((t) => t.id === selectedExportId.value);
-  if (!raw) return;
-  const { id, ...withoutId } = raw;
-  exportJson.value = JSON.stringify(withoutId, null, 2);
 }
 
 function load() {
@@ -74,23 +78,19 @@ function load() {
 </script>
 
 <style scoped>
-.preview-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-
-  border: 1px solid #ccc;
-  border-radius: 8px;
+.table-wrapper {
+  overflow-x: scroll;
+  width: 100%;
 }
 
-.button-header {
-  background-color: var(--accent-bg);
-  border-radius: 8px;
-  min-height: 2em;
-  padding: 5px;
-  display: inline-flex;
-  flex-direction: row-reverse;
-  align-items: center;
+table * {
+  border: 1px solid white;
+  padding: 3px 10px;
+  font-size: 0.85em;
+}
+
+td {
+  min-width: 150px;
 }
 
 .copy-button {
@@ -106,47 +106,28 @@ function load() {
 .hub-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
-.field {
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  align-items: center;
-  gap: 8px;
-}
-.field select {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-.json-preview {
-  margin-top: -5px;
-  margin-bottom: -5px;
-  background: #f5f5f5;
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 0.8em;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  text-align: left;
-  color: #424242;
 
-  max-height: 20em;
-  overflow-y: scroll;
-}
 textarea {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   min-height: 120px;
+  width: inherit;
   resize: vertical;
   font-size: 0.9em;
 }
+
 button {
   padding: 8px 16px;
   border-radius: 6px;
   border: 1px solid #333;
   cursor: pointer;
   align-self: flex-start;
+}
+
+button.load {
+  margin-top: 10px;
+  align-self: center;
 }
 </style>
