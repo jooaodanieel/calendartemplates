@@ -108,9 +108,8 @@ function create() {
   border: 2px solid #333;
   border-radius: 8px;
   font-weight: 500;
-}
-.duration {
-  color: #888;
+  background-color: var(--accent-bg);
+  color: var(--accent);
 }
 .create-btn {
   padding: 10px;

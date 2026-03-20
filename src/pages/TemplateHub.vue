@@ -84,20 +84,23 @@ function load() {
 }
 
 .button-header {
-  background-color: #444;
+  background-color: var(--accent-bg);
   border-radius: 8px;
   min-height: 2em;
   padding: 5px;
   display: inline-flex;
   flex-direction: row-reverse;
+  align-items: center;
 }
 
 .copy-button {
   border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 5px;
-  height: 2em;
-  background-color: #212121;
+  padding: 5px 7px;
+  min-height: 2em;
+  background-color: var(--accent);
+  color: #424242;
+  font-weight: 700;
 }
 
 .hub-section {
