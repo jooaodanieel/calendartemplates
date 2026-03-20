@@ -1,6 +1,5 @@
 <template>
-  <div class="scheduler-form">
-    <h2>Nuovo evento</h2>
+  <Main title="Nuovo evento">
 
     <div class="field">
       <label>Titolo</label>
@@ -40,7 +39,7 @@
         :isAnchor="index === anchorIndex"
       />
     </div>
-  </div>
+  </Main>
 </template>
 
 <script setup>
@@ -49,6 +48,7 @@ import EventPreviewCard from '../components/EventPreviewCard.vue';
 import { Template } from '../models/template';
 import { db } from '../integrations/persistence';
 import { TimeCalculations } from '../utils/time_calculations';
+import Main from '../components/Main.vue';
 
 const title = ref('');
 const date = ref('');
@@ -110,14 +110,7 @@ function confirm() {
 </script>
 
 <style scoped>
-.scheduler-form {
-  max-width: 750px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin: 0 auto;
-}
+
 .field {
   display: grid;
   grid-template-columns: 90px 1fr;

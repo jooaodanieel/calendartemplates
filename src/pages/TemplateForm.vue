@@ -1,6 +1,5 @@
 <template>
-  <div class="template-form">
-    <h2>Nuovo template</h2>
+  <Main title="Nuovo template">
 
     <div class="field">
       <label>Nome</label>
@@ -28,13 +27,14 @@
     </div>
 
     <button class="create-btn" @click="create">Crea</button>
-  </div>
+  </Main>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import BlockList from '../components/BlockList.vue';
 import { Template } from '../models/template';
+import Main from '../components/Main.vue';
 
 const name = ref('');
 const duration = ref(null);
@@ -84,14 +84,7 @@ function create() {
 </script>
 
 <style scoped>
-.template-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+
 .field {
   display: grid;
   grid-template-columns: 120px 1fr;

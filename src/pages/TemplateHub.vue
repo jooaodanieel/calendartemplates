@@ -1,5 +1,5 @@
 <template>
-  <div class="template-hub">
+  <Main title="Template Hub">
     <section class="hub-section">
       <h3>Esporta</h3>
       <div class="field">
@@ -25,7 +25,7 @@
       <textarea v-model="importJson" placeholder="Incolla il JSON qui..." />
       <button @click="load">Carica</button>
     </section>
-  </div>
+  </Main>
 
   <Snackbar ref="snackbarRef" />
 </template>
@@ -34,6 +34,7 @@
 import { ref, onMounted } from 'vue';
 import { db } from '../integrations/persistence';
 import Snackbar from '../components/Snackbar.vue';
+import Main from '../components/Main.vue';
 
 const templates = ref([]);
 const selectedExportId = ref('');
@@ -99,14 +100,6 @@ function load() {
   background-color: #212121;
 }
 
-.template-hub {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
 .hub-section {
   display: flex;
   flex-direction: column;
