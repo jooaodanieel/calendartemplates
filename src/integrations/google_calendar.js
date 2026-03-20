@@ -15,6 +15,34 @@ let tokenClient = null;
 export const accessToken = ref(null);
 export const userInfo = ref(null);
 
+export const googleEventColors = [
+  { name: 'Pavone', id: '1', hex: '#a4bdfc' },
+  { name: 'Salvia', id: '2', hex: '#7ae28c' },
+  { name: 'Uva', id: '3', hex: '#dbadff' },
+  { name: 'Fenicottero', id: '4', hex: '#ff887c' },
+  { name: 'Banana', id: '5', hex: '#fbd75b' },
+  { name: 'Mandarino', id: '6', hex: '#ffb878' },
+  { name: 'Lavanda', id: '7', hex: '#46d6db' },
+  { name: 'Grafite', id: '8', hex: '#e1e1e1' },
+  { name: 'Mirtillo', id: '9', hex: '#5484ed' },
+  { name: 'Basilico', id: '10', hex: '#51b749' },
+  { name: 'Pomodoro', id: '11', hex: '#dc2127' },
+];
+
+export const colorById = {
+  1: '#a4bdfc',
+  2: '#7ae28c',
+  3: '#dbadff',
+  4: '#ff887c',
+  5: '#fbd75b',
+  6: '#ffb878',
+  7: '#46d6db',
+  8: '#e1e1e1',
+  9: '#5484ed',
+  10: '#51b749',
+  11: '#dc2127',
+};
+
 export const initGoogleAuth = function () {
   if (!window.google) {
     console.error('Google Identity Services non ancora caricato');
@@ -97,6 +125,7 @@ export const smartEventToGoogleEvent = (smartEvent) => {
     summary: label,
     transparency: isBusy ? 'opaque' : 'transparent',
     description: CAL_TEMP_TAG,
+    colorId: smartEvent.colorId,
     start: {
       dateTime: smartEvent.startDateToISO(),
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,

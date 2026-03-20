@@ -11,6 +11,11 @@
     </div>
 
     <div class="field">
+      <label>Colore</label>
+      <ColorPicker :colors="googleEventColors" v-model="color" />
+    </div>
+
+    <div class="field">
       <label>Mark as <strong>busy</strong></label>
       <input type="checkbox" v-model="isBusy" />
     </div>
@@ -22,7 +27,7 @@
         @add-block="addBefore"
       />
 
-      <div class="anchor-card">
+      <div class="anchor-card" :style="{ backgroundColor: color && color.hex }">
         <span>{{ name || 'Nome template' }}</span>
         <span class="duration">({{ duration || 0 }} min)</span>
       </div>
@@ -39,9 +44,12 @@ import { ref } from 'vue';
 import BlockList from '../components/BlockList.vue';
 import Main from '../components/Main.vue';
 import { Template } from '../models/template';
+import { googleEventColors } from '../integrations/google_calendar';
+import ColorPicker from '../components/ColorPicker.vue';
 
 const name = ref('');
 const duration = ref(null);
+const color = ref(null);
 const isBusy = ref(true);
 const beforeBlocks = ref([]);
 const afterBlocks = ref([]);
@@ -63,6 +71,7 @@ function create() {
   let builder = Template.builder()
     .for(name.value)
     .withDurationMinutes(duration.value)
+    .coloredWith(color.value)
     .markAsBusy(isBusy.value);
 
   for (const block of beforeBlocks.value) {
@@ -90,6 +99,12 @@ function create() {
 </script>
 
 <style scoped>
+.color-picker {
+  min-width: 10px;
+  min-height: 10px;
+  border-radius: 50%;
+}
+
 .field {
   display: grid;
   grid-template-columns: 120px 1fr;
@@ -115,8 +130,7 @@ function create() {
   border: 2px solid #333;
   border-radius: 8px;
   font-weight: 500;
-  background-color: var(--accent-bg);
-  color: var(--accent);
+  color: #333;
 }
 .create-btn {
   padding: 10px;

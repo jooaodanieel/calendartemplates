@@ -6,12 +6,13 @@ export class Template {
     return new TemplateBuilder();
   }
 
-  constructor(name, durationInMinutes, before, after, isBusy) {
+  constructor(name, durationInMinutes, before, after, isBusy, colorId) {
     this.name = name;
     this.durationInMinutes = durationInMinutes;
     this.before = before;
     this.after = after;
-    this.isBusy = isBusy === null || isBusy === undefined ? true : isBusy;
+    this.isBusy = isBusy;
+    this.colorId = colorId;
   }
 
   applyTo(label, day, time) {
@@ -32,7 +33,15 @@ export class Template {
       this.durationInMinutes
     );
 
-    return new SmartEvent(label, day, time, entDay, endTime, this.isBusy);
+    return new SmartEvent(
+      label,
+      day,
+      time,
+      entDay,
+      endTime,
+      this.isBusy,
+      this.colorId
+    );
   }
 
   generateWrappingEvents(day, time) {
@@ -85,7 +94,8 @@ export class Template {
       startTime,
       refDay,
       refTime,
-      this.isBusy
+      this.isBusy,
+      this.colorId
     );
   }
 
@@ -106,7 +116,8 @@ export class Template {
       refTime,
       endDay,
       endTime,
-      this.isBusy
+      this.isBusy,
+      this.colorId
     );
   }
 }
@@ -118,6 +129,7 @@ export class TemplateBuilder {
     this.before = [];
     this.after = [];
     this.isBusy = true;
+    this.colorId = 11;
   }
 
   for(name) {
@@ -129,6 +141,11 @@ export class TemplateBuilder {
   markAsBusy(check) {
     this.isBusy = check;
 
+    return this;
+  }
+
+  coloredWith({ id }) {
+    this.colorId = id;
     return this;
   }
 
@@ -160,7 +177,8 @@ export class TemplateBuilder {
       this.durationInMinutes,
       this.before,
       this.after,
-      this.isBusy
+      this.isBusy,
+      this.colorId
     );
   }
 }

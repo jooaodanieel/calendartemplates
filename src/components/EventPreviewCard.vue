@@ -37,12 +37,15 @@ const isSameDay = computed(() => props.event.day === props.event.endDay);
   margin: 12px 0;
   border: 3px solid #ccc;
   font-weight: 700;
-  color: var(--accent);
-  background-color: var(--accent-bg);
+  color: #333;
+}
+
+.event-label {
+  color: #333;
 }
 
 .event-info {
-  color: #888;
+  color: #333;
   font-size: 0.7em;
 }
 

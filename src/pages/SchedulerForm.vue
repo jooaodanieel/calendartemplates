@@ -36,6 +36,10 @@
         :key="index"
         :event="event"
         :isAnchor="index === anchorIndex"
+        :style="{
+          backgroundColor:
+            selectedTemplate && colorById[Number(selectedTemplate.colorId)],
+        }"
       />
     </div>
   </Main>
@@ -48,6 +52,7 @@ import Main from '../components/Main.vue';
 import { Template } from '../models/template';
 import { db } from '../integrations/persistence';
 import { TimeCalculations } from '../utils/time_calculations';
+import { colorById } from '../integrations/google_calendar';
 
 const title = ref('');
 const date = ref('');
@@ -81,7 +86,8 @@ function onTemplateChange() {
     raw.durationInMinutes,
     raw.before,
     raw.after,
-    raw.isBusy
+    raw.isBusy,
+    raw.colorId
   );
 
   updatePreview();
