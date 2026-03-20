@@ -1,11 +1,13 @@
 <template>
-  <div class="block-card">
+  <Card class="reduced">
     <span class="block-name">{{ block.name }}</span>
     <span class="block-duration">({{ block.durationInMinutes }} min)</span>
-  </div>
+  </Card>
 </template>
 
 <script setup>
+import Card from './Card.vue';
+
 defineProps({
   block: {
     type: Object,
@@ -15,16 +17,10 @@ defineProps({
 </script>
 
 <style scoped>
-.block-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin: 4px 0;
+.reduced {
   width: 75%;
 }
+
 .block-duration {
   color: #888;
   font-size: 0.9em;
