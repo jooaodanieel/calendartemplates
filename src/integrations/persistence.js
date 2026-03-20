@@ -7,5 +7,5 @@ db.version(1).stores({
 });
 
 export const storeTemplate = async function (template) {
-  await db.templates.add({...template});
+  await db.templates.add({ ...template });
 };

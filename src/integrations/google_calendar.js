@@ -91,19 +91,19 @@ export const flushToGoogleCalendar = async function (smartEvents) {
 export const smartEventToGoogleEvent = (smartEvent) => {
   const { label, isBusy } = smartEvent;
 
-  const CAL_TEMP_TAG = "\n\n---\n#caltemp"
+  const CAL_TEMP_TAG = '\n\n---\n#caltemp';
 
   return {
     summary: label,
-    transparency: isBusy ? "opaque" : "transparent",
+    transparency: isBusy ? 'opaque' : 'transparent',
     description: CAL_TEMP_TAG,
     start: {
       dateTime: smartEvent.startDateToISO(),
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     },
-    end:  {
+    end: {
       dateTime: smartEvent.endDateToISO(),
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    }
-  }
-}
+    },
+  };
+};

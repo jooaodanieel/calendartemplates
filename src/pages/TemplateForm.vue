@@ -12,7 +12,7 @@
 
     <div class="field">
       <label>Mark as <strong>busy</strong></label>
-      <input type="checkbox" v-model="isBusy">
+      <input type="checkbox" v-model="isBusy" />
     </div>
 
     <div class="section">

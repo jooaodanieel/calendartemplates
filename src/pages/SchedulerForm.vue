@@ -17,12 +17,12 @@
 
     <div class="field">
       <label>Data</label>
-      <input v-model="date" placeholder="es. 18/03/2026" />
+      <input v-model="date" type="date" />
     </div>
 
     <div class="field">
       <label>Ora</label>
-      <input v-model="time" placeholder="es. 7.10" />
+      <input v-model="time" type="time" />
     </div>
 
     <div v-if="previewEvents.length" class="preview-section">
@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import EventPreviewCard from '../components/EventPreviewCard.vue';
 import Main from '../components/Main.vue';
 import { Template } from '../models/template';
@@ -57,6 +57,16 @@ const templates = ref([]);
 const previewEvents = ref([]);
 const anchorIndex = ref(0);
 const selectedTemplate = ref(null);
+
+const formattedDate = computed(() => {
+  const [year, month, day] = date.value.split('-');
+  return `${day}/${month}/${year}`;
+});
+
+const formattedTime = computed(() => {
+  const [hours, minutes] = time.value.split(':');
+  return `${'' + Number(hours)}.${minutes}`;
+});
 
 onMounted(async () => {
   templates.value = await db.templates.toArray();
@@ -82,8 +92,8 @@ function updatePreview() {
 
   const events = selectedTemplate.value.applyTo(
     title.value || selectedTemplate.value.name,
-    date.value,
-    time.value
+    formattedDate.value,
+    formattedTime.value
   );
 
   const sorted = TimeCalculations.sortEvents(events);
