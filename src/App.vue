@@ -3,8 +3,9 @@ import { onMounted, ref } from 'vue';
 import Navbar from './components/Navbar.vue';
 import Snackbar from './components/Snackbar.vue';
 import { flushToGoogleCalendar } from './integrations/google_calendar';
-import { storeTemplate } from './integrations/persistence';
+import { db, storeTemplate } from './integrations/persistence';
 import { initGoogleAuth } from './integrations/google_calendar';
+import router, { NEW_TEMPLATE } from './router';
 
 const snackbarRef = ref(null);
 
@@ -16,7 +17,18 @@ onMounted(() => {
   } else {
     script.addEventListener('load', initGoogleAuth);
   }
+
+  conductToNewTemplate();
 });
+
+async function conductToNewTemplate() {
+  const n = await db.templates.count();
+
+  if (n === 0) {
+    router.replace({ name: NEW_TEMPLATE });
+    snackbarRef.value.show('Ancora non hai template, creane uno');
+  }
+}
 
 async function onTemplateCreated(template) {
   await storeTemplate(template);
