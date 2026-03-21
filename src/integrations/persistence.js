@@ -13,6 +13,15 @@ export const allTemplates = async function () {
   return all.map(Template.hydrate);
 };
 
+export const getTemplateIdByName = async function (name) {
+  const { id } = await db.templates.where('name').equals(name).first();
+  return id;
+};
+
+export const deleteTemplate = async function (id) {
+  await db.templates.delete(id);
+};
+
 export const storeTemplate = async function (template) {
   await db.templates.add({ ...template });
 };

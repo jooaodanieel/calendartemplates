@@ -16,12 +16,16 @@
               <td v-for="attr in attrs">
                 {{ template.displayString(attr) }}
               </td>
-              <td>
+              <td class="action-buttons-cell">
                 <button
                   class="copy-button"
                   @click="copyRowToClipboard(template)"
                 >
-                  copy
+                  coppia
+                </button>
+
+                <button class="copy-button green" @click="deleteRow(template)">
+                  cancella
                 </button>
               </td>
             </tr>
@@ -45,7 +49,11 @@ import { ref, onMounted, computed } from 'vue';
 import { Template } from '../models/template';
 import Snackbar from '../components/Snackbar.vue';
 import Main from '../components/Main.vue';
-import { allTemplates } from '../integrations/persistence';
+import {
+  allTemplates,
+  deleteTemplate,
+  getTemplateIdByName,
+} from '../integrations/persistence';
 
 const templates = ref([]);
 const attrs = computed(() => Object.keys(new Template()));
@@ -63,6 +71,14 @@ function copyRowToClipboard(template) {
   const { id, ...withoutId } = template;
   navigator.clipboard.writeText(JSON.stringify(withoutId));
   snackbarRef.value.show("JSON coppiato nell'area di trasferimento");
+}
+
+async function deleteRow(template) {
+  const id = await getTemplateIdByName(template.name);
+  await deleteTemplate(id);
+  templates.value = await allTemplates();
+
+  snackbarRef.value.show('Template cancellato');
 }
 
 function load() {
@@ -97,10 +113,15 @@ td {
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 5px 7px;
+  margin: 5px;
   min-height: 2em;
   background-color: var(--accent);
   color: #424242;
   font-weight: 700;
+}
+
+.green {
+  background-color: rgb(60, 249, 127);
 }
 
 .hub-section {
