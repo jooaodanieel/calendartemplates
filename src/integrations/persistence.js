@@ -7,21 +7,37 @@ db.version(1).stores({
   templates: '++id, name',
 });
 
-export const allTemplates = async function () {
-  const all = await db.templates.toArray();
+export class TemplateDAO {
+  constructor(id, name, durationInMinutes, before, after, isBusy, colorId) {
+    this.id = id;
+    this.name = name;
+    this.durationInMinutes = durationInMinutes;
+    this.before = before;
+    this.after = after;
+    this.isBusy = isBusy;
+    this.colorId = colorId;
+  }
 
-  return all.map(Template.hydrate);
-};
+  static async all() {
+    const records = await db.templates.toArray();
+    return records.map(Template.hydrate);
+  }
 
-export const getTemplateIdByName = async function (name) {
-  const { id } = await db.templates.where('name').equals(name).first();
-  return id;
-};
+  static async isEmpty() {
+    const n = await db.templates.count();
+    return n === 0;
+  }
 
-export const deleteTemplate = async function (id) {
-  await db.templates.delete(id);
-};
+  static async findByName(name) {
+    const record = await db.templates.where('name').equals(name).first();
+    return new TemplateDAO(...record);
+  }
 
-export const storeTemplate = async function (template) {
-  await db.templates.add({ ...template });
-};
+  static async create(template) {
+    await db.templates.add({ ...template });
+  }
+
+  async delete() {
+    await db.templates.delete(this.id);
+  }
+}

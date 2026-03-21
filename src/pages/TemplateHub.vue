@@ -49,11 +49,7 @@ import { ref, onMounted, computed } from 'vue';
 import { Template } from '../models/template';
 import Snackbar from '../components/Snackbar.vue';
 import Main from '../components/Main.vue';
-import {
-  allTemplates,
-  deleteTemplate,
-  getTemplateIdByName,
-} from '../integrations/persistence';
+import { TemplateDAO } from '../integrations/persistence';
 
 const templates = ref([]);
 const attrs = computed(() => Object.keys(new Template()));
@@ -64,7 +60,7 @@ const snackbarRef = ref('');
 const emit = defineEmits(['template-imported']);
 
 onMounted(async () => {
-  templates.value = await allTemplates();
+  templates.value = await TemplateDAO.all();
 });
 
 function copyRowToClipboard(template) {
@@ -74,9 +70,9 @@ function copyRowToClipboard(template) {
 }
 
 async function deleteRow(template) {
-  const id = await getTemplateIdByName(template.name);
-  await deleteTemplate(id);
-  templates.value = await allTemplates();
+  const templateRecord = await TemplateDAO.findByName(template.name);
+  await templateRecord.delete();
+  templates.value = await TemplateDAO.all();
 
   snackbarRef.value.show('Template cancellato');
 }

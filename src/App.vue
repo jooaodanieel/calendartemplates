@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue';
 import Navbar from './components/Navbar.vue';
 import Snackbar from './components/Snackbar.vue';
 import { flushToGoogleCalendar } from './integrations/google_calendar';
-import { db, storeTemplate } from './integrations/persistence';
+import { TemplateDAO } from './integrations/persistence';
 import { initGoogleAuth } from './integrations/google_calendar';
 import router, { NEW_TEMPLATE } from './router';
 
@@ -22,21 +22,20 @@ onMounted(() => {
 });
 
 async function conductToNewTemplate() {
-  const n = await db.templates.count();
+  const isEmpty = await TemplateDAO.isEmpty();
 
-  if (n === 0) {
+  if (isEmpty) {
     router.replace({ name: NEW_TEMPLATE });
     snackbarRef.value.show('Ancora non hai template, creane uno');
   }
 }
 
 async function onTemplateCreated(template) {
-  await storeTemplate(template);
+  await TemplateDAO.create(template);
 
   const message = 'Template salvato: ' + template.name;
 
   snackbarRef.value.show(message);
-  console.log(message);
 }
 
 async function onSmartEventsConfirmed(smartEvents) {
@@ -47,16 +46,14 @@ async function onSmartEventsConfirmed(smartEvents) {
     smartEvents.map((evt) => evt.label).join(', ');
 
   snackbarRef.value.show(message);
-  console.log(message);
 }
 
 async function onTemplateImported(template) {
-  await storeTemplate(template);
+  await TemplateDAO.create(template);
 
   const message = 'Template caricato: ' + template.name;
 
   snackbarRef.value.show(message);
-  console.log(message);
 }
 
 function onTemplateImportError() {
