@@ -4,7 +4,7 @@ import { Template } from '../models/template';
 export const db = new Dexie('calendar-templates');
 
 db.version(1).stores({
-  templates: '++id, name',
+  templates: '++id, &name',
 });
 
 export class TemplateDAO {
@@ -28,13 +28,30 @@ export class TemplateDAO {
     return n === 0;
   }
 
-  static async findByName(name) {
-    const record = await db.templates.where('name').equals(name).first();
-    return new TemplateDAO(...record);
+  static async findByName(queryName) {
+    const { id, name, durationInMinutes, before, after, isBusy, colorId } =
+      await db.templates.where('name').equals(queryName).first();
+    return new TemplateDAO(
+      id,
+      name,
+      durationInMinutes,
+      before,
+      after,
+      isBusy,
+      colorId
+    );
   }
 
   static async create(template) {
-    await db.templates.add({ ...template });
+    await db.templates.add({
+      ...template,
+      before: template.before.map(({ before, after, ...base }) => ({
+        ...base,
+      })),
+      after: template.after.map(({ before, after, ...base }) => ({
+        ...base,
+      })),
+    });
   }
 
   async delete() {

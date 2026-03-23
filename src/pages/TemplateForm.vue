@@ -57,12 +57,22 @@ const afterBlocks = ref([]);
 const TEMPLATE_CREATED_EVENT = 'template-created';
 const emit = defineEmits([TEMPLATE_CREATED_EVENT]);
 
-function addBefore(block) {
-  beforeBlocks.value.unshift(block);
+function addBefore({ name, isBusy, durationInMinutes }) {
+  const builder = Template.builder()
+    .for(name)
+    .markAsBusy(isBusy)
+    .withDurationMinutes(durationInMinutes);
+
+  beforeBlocks.value.unshift(builder);
 }
 
-function addAfter(block) {
-  afterBlocks.value.push(block);
+function addAfter({ name, isBusy, durationInMinutes }) {
+  const builder = Template.builder()
+    .for(name)
+    .markAsBusy(isBusy)
+    .withDurationMinutes(durationInMinutes);
+
+  afterBlocks.value.push(builder);
 }
 
 function create() {
@@ -74,23 +84,17 @@ function create() {
     .coloredWith(color.value)
     .markAsBusy(isBusy.value);
 
-  for (const block of beforeBlocks.value) {
-    builder = builder.precededBy(
-      Template.builder()
-        .for(block.name)
-        .withDurationMinutes(block.durationInMinutes)
-    );
+  for (const blockBuilder of beforeBlocks.value) {
+    builder = builder.precededBy(blockBuilder);
   }
 
-  for (const block of afterBlocks.value) {
-    builder = builder.followedBy(
-      Template.builder()
-        .for(block.name)
-        .withDurationMinutes(block.durationInMinutes)
-    );
+  for (const blockBuilder of afterBlocks.value) {
+    builder = builder.followedBy(blockBuilder);
   }
 
-  emit(TEMPLATE_CREATED_EVENT, builder.build());
+  const newTemplate = builder.build();
+
+  emit(TEMPLATE_CREATED_EVENT, newTemplate);
   name.value = '';
   duration.value = null;
   beforeBlocks.value = [];

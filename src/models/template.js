@@ -119,7 +119,7 @@ export class Template {
       startTime,
       refDay,
       refTime,
-      this.isBusy,
+      preEventTemplate.isBusy,
       this.colorId
     );
   }
@@ -141,7 +141,7 @@ export class Template {
       refTime,
       endDay,
       endTime,
-      this.isBusy,
+      postEventTemplate.isBusy,
       this.colorId
     );
   }

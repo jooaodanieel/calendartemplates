@@ -9,6 +9,8 @@
       <input v-model="newName" placeholder="es. Doccia" />
       <label>Durata (min)</label>
       <input v-model.number="newDuration" type="number" />
+      <label>Busy:</label>
+      <input type="checkbox" v-model="newIsBusy" />
       <span></span>
       <button @click="addBlock">Aggiungi</button>
     </div>
@@ -41,17 +43,21 @@ const emit = defineEmits(['add-block']);
 const showForm = ref(false);
 const newName = ref('');
 const newDuration = ref(null);
+const newIsBusy = ref(true);
 
 function toggleForm() {
   showForm.value = !showForm.value;
   newName.value = '';
   newDuration.value = null;
+  newIsBusy.value = true;
 }
 
 function addBlock() {
   if (!newName.value || !newDuration.value) return;
+
   emit('add-block', {
     name: newName.value,
+    isBusy: newIsBusy.value,
     durationInMinutes: newDuration.value,
   });
   toggleForm();
