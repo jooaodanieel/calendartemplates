@@ -30,6 +30,7 @@
       <div class="anchor-card" :style="{ backgroundColor: color && color.hex }">
         <span>{{ name || 'Nome template' }}</span>
         <span class="duration">({{ duration || 0 }} min)</span>
+        <span>{{ isBusy ? "occupato" : "libero" }}</span>
       </div>
 
       <BlockList :blocks="afterBlocks" @add-block="addAfter" />

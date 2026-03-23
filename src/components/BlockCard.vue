@@ -2,6 +2,7 @@
   <Card class="reduced">
     <span class="block-name">{{ block.name }}</span>
     <span class="block-duration">({{ block.durationInMinutes }} min)</span>
+    <span>{{ block.isBusy ? "occupato" : "libero"  }}</span>
   </Card>
 </template>
 
