@@ -42,11 +42,26 @@ export function makeCreateTemplate(templateStore) {
 }
 
 export function makeUpdateTemplateAggregate(templateStore) {
-  di.ensure(templateStore, "templateStore")
-    .hasFunction("save")
+  const ensureTemplateStore = di.ensure(templateStore, "templateStore")
+
+  ensureTemplateStore.hasFunction("save")
+  ensureTemplateStore.hasFunction("delete")
   
-  return async ({ payload }) => {
-    await templateStore.save(payload)
+  return async ({ event, payload }) => {
+    switch (event) {
+      case "TEMPLATE_CREATED":
+        await templateStore.save(payload)
+        break;
+      
+      case "TEMPLATE_DELETED":
+        await templateStore.delete(payload)
+        break;
+    
+      default:
+        break;
+    }
+
+    
   }
 }
 
@@ -85,5 +100,29 @@ export function makeExportableTemplates(templateStore) {
         return this[attr];
       }
     }))
+  }
+}
+
+export function makeDeleteTemplate(templateStore) {
+  const ensureTemplateStore = di.ensure(templateStore, "templateStore")
+    
+  ensureTemplateStore.hasFunction("hasName")
+  ensureTemplateStore.hasFunction("findByName")
+  
+  return async (template) => {
+    const { name } = template
+    const hasName = await templateStore.hasName(name)
+
+    if (!hasName)
+      return Event("TEMPLATE_DELETION_ERROR", "v1")
+        .addPayload({ error: `template named '${name}' doesn't exist` })
+        .addPayload({ template })
+        .build()
+    
+    const found = await templateStore.findByName(name)
+    
+    return Event("TEMPLATE_DELETED", "v1")
+      .addPayload({ ...found })
+      .build()
   }
 }

@@ -30,6 +30,12 @@ onMounted(() => {
       }
     )
 
+  reactTo("TEMPLATE_DELETION_ERROR")
+    .with(({ payload: { error }}) => {
+      const message = `Template Deletion error: ${error}`
+      snackbarRef.value.show(message)
+    })
+
   const script = document.querySelector('script[src*="accounts.google.com"]');
 
   if (window.google) {

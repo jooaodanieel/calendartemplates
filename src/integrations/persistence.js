@@ -23,8 +23,19 @@ export const templateStore = {
     return count > 0
   },
 
+  findByName: async (name) => {
+    return await db.templates
+      .where("name")
+      .equals(name)
+      .first()
+  },
+
   save: async (template) => {
     await db.templates.add(template)
+  },
+
+  delete: async (template) => {
+    await db.templates.delete(template.id)
   },
 
   all: async () => {
@@ -68,15 +79,7 @@ export class TemplateDAO {
   }
 
   static async create(template) {
-    await db.templates.add({
-      ...template,
-      before: template.before.map(({ before, after, ...base }) => ({
-        ...base,
-      })),
-      after: template.after.map(({ before, after, ...base }) => ({
-        ...base,
-      })),
-    });
+    await db.templates.add(template);
   }
 
   async delete() {
