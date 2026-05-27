@@ -1,4 +1,5 @@
 import di from "../eventsourcing/dependencyInjection"
+import { Event } from "../eventsourcing/event"
 
 export function makeCreateTemplate(templateStore) {
   const ensureTemplateStore = di.ensure(templateStore, "templateStore")
@@ -12,43 +13,31 @@ export function makeCreateTemplate(templateStore) {
   }) {
     const isNameUsed = await templateStore.hasName(name)
     if (isNameUsed)
-      return {
-        event: "TEMPLATE_CREATION_FAILED",
-        timestamp: (new Date()).getTime(),
-        payload: {
-          error: `name '${name}' already in use`
-        }
-      }
+      return Event("TEMPLATE_CREATION_FAILED", "v1")
+        .addPayload({ error: `name '${name}' already in use` })
+        .build()
 
     const lastsMoreThanZero = durationInMinutes > 0
     if (!lastsMoreThanZero)
-      return {
-        event: "TEMPLATE_CREATION_FAILED",
-        timestamp: (new Date()).getTime(),
-        payload: {
-          error: "duration must be greater than 0"
-        }
-      }
+      return Event("TEMPLATE_CREATION_FAILED", "v1")
+        .addPayload({ error: "duration must be greater than 0" })
+        .build()
     
     return null
   }
 
   return async (createTemplateForm) => {
-    return (await validate(createTemplateForm)) || {
-      event: "TEMPLATE_CREATED",
-      timestamp: (new Date()).getTime(),
-      meta: { schemaVersion: "v1" },
-      payload: {
-        id: templateStore.nextId(),
-        name:               createTemplateForm.name,
-        durationInMinutes:  createTemplateForm.durationInMinutes,
-        before:             createTemplateForm.before,
-        after:              createTemplateForm.after,
-        isBusy:             createTemplateForm.isBusy,
-        colorId:            createTemplateForm.colorId,
-        tasks:              createTemplateForm.tasks
-      }
-    }
+    return (await validate(createTemplateForm)) || Event("TEMPLATE_CREATED", "v1")
+      .addPayload({ id: templateStore.nextId() })
+      .addPayload({ name: createTemplateForm.name })
+      .addPayload({ durationInMinutes: createTemplateForm.durationInMinutes })
+      .addPayload({ before: createTemplateForm.before })
+      .addPayload({ after: createTemplateForm.after })
+      .addPayload({ isBusy: createTemplateForm.isBusy })
+      .addPayload({ colorId: createTemplateForm.colorId })
+      .addPayload({ tasks: createTemplateForm.tasks })
+      .build()
+    
   }
 }
 
@@ -57,7 +46,6 @@ export function makeUpdateTemplateAggregate(templateStore) {
     .hasFunction("save")
   
   return async ({ payload }) => {
-    console.log(payload)
     await templateStore.save(payload)
   }
 }
