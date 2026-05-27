@@ -64,3 +64,26 @@ export function makeAvailableTemplates(templateStore) {
     }, {})
   }
 }
+
+export function makeExportableTemplates(templateStore) {
+  di.ensure(templateStore, "templateStore")
+    .hasFunction("all")
+  
+  return async () => {
+    const all = await templateStore.all()
+
+    return all.map(({ id, ...withoutId }) => ({
+      ...withoutId,
+      displayString: function (attr) {
+        const listAttrs = ['before', 'after'];
+        if (listAttrs.includes(attr)) {
+          return this[attr]
+            .map((sub) => `${sub.name} (${sub.durationInMinutes} min)`)
+            .join(', ');
+        }
+
+        return this[attr];
+      }
+    }))
+  }
+}

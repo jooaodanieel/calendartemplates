@@ -50,6 +50,7 @@ import { Template } from '../models/template';
 import Snackbar from '../components/Snackbar.vue';
 import Main from '../components/Main.vue';
 import { TemplateDAO } from '../integrations/persistence';
+import { views } from '../core/main';
 
 const templates = ref([]);
 const attrs = computed(() => Object.keys(new Template()));
@@ -60,12 +61,11 @@ const snackbarRef = ref('');
 const emit = defineEmits(['template-imported']);
 
 onMounted(async () => {
-  templates.value = await TemplateDAO.all();
+  templates.value = await views.exportableTemplates()
 });
 
 function copyRowToClipboard(template) {
-  const { id, ...withoutId } = template;
-  navigator.clipboard.writeText(JSON.stringify(withoutId));
+  navigator.clipboard.writeText(JSON.stringify(template));
   snackbarRef.value.show("JSON coppiato nell'area di trasferimento");
 }
 
