@@ -1,3 +1,4 @@
+import { v7 as uuid } from "uuid"
 import Dexie from 'dexie';
 import { Template } from '../models/template';
 
@@ -6,6 +7,26 @@ export const db = new Dexie('calendar-templates');
 db.version(1).stores({
   templates: '++id, &name',
 });
+
+export const templateStore = {
+  nextId: () => { 
+    const id = uuid()
+    return `tpl-${id}`
+  },
+
+  hasName: async (name) => {
+    const count = await db.templates
+      .where("name")
+      .equals(name)
+      .count()
+    
+    return count > 0
+  },
+
+  save: async (template) => {
+    await db.templates.add(template)
+  }
+}
 
 export class TemplateDAO {
   constructor(id, name, durationInMinutes, before, after, isBusy, colorId) {

@@ -3,13 +3,33 @@ import { onMounted, ref } from 'vue';
 import Navbar from './components/Navbar.vue';
 import Snackbar from './components/Snackbar.vue';
 import { flushToGoogleCalendar } from './integrations/google_calendar';
-import { TemplateDAO } from './integrations/persistence';
+import { TemplateDAO, templateStore } from './integrations/persistence';
 import { initGoogleAuth } from './integrations/google_calendar';
 import router, { NEW_TEMPLATE } from './router';
+import { scaffold } from "./core/main"
+import { reactTo } from './core/eventsourcing/broker';
 
 const snackbarRef = ref(null);
 
 onMounted(() => {
+  scaffold(templateStore)
+
+  reactTo("TEMPLATE_CREATED")
+    .with(
+      ({ payload: { name } }) => {
+        const message = 'Template salvato: ' + name;
+        snackbarRef.value.show(message);
+      }
+  )
+
+  reactTo("TEMPLATE_CREATION_FAILED")
+    .with(
+      ({ payload: { error } }) => {
+        const message = `Template Creation error: ${error}`
+        snackbarRef.value.show(message)
+      }
+    )
+
   const script = document.querySelector('script[src*="accounts.google.com"]');
 
   if (window.google) {
@@ -28,14 +48,6 @@ async function conductToNewTemplate() {
     router.replace({ name: NEW_TEMPLATE });
     snackbarRef.value.show('Ancora non hai template, creane uno');
   }
-}
-
-async function onTemplateCreated(template) {
-  await TemplateDAO.create(template);
-
-  const message = 'Template salvato: ' + template.name;
-
-  snackbarRef.value.show(message);
 }
 
 async function onSmartEventsConfirmed(smartEvents) {
@@ -69,7 +81,6 @@ function onTemplateImportError() {
 
   <RouterView
     @smart-events-confirmed="onSmartEventsConfirmed"
-    @template-created="onTemplateCreated"
     @template-imported="onTemplateImported"
     @import-error="onTemplateImportError"
   />
