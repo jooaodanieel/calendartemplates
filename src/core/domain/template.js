@@ -49,3 +49,18 @@ export function makeUpdateTemplateAggregate(templateStore) {
     await templateStore.save(payload)
   }
 }
+
+export function makeAvailableTemplates(templateStore) {
+  di.ensure(templateStore, "templateStore")
+    .hasFunction("all")
+  
+  return async () => {
+    const templates = await templateStore.all()
+
+    return templates.reduce((indexedByName, currentTemplate) => {
+      const current = {}
+      current[currentTemplate.name] = currentTemplate
+      return { ...indexedByName, ...current}
+    }, {})
+  }
+}

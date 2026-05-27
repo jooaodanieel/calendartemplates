@@ -25,6 +25,10 @@ export const templateStore = {
 
   save: async (template) => {
     await db.templates.add(template)
+  },
+
+  all: async () => {
+    return await db.templates.toArray()
   }
 }
 

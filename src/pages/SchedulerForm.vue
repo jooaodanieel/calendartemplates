@@ -7,10 +7,10 @@
 
     <div class="field">
       <label>Template</label>
-      <select v-model="selectedTemplateId" @change="onTemplateChange">
+      <select v-model="selectedTemplate" @change="onTemplateChange">
         <option disabled value="">Scegli...</option>
-        <option v-for="t in templates" :key="t.id" :value="t.id">
-          {{ t.name }}
+        <option v-for="(template, name) in templates" :key="name" :value="template">
+          {{ name }}
         </option>
       </select>
     </div>
@@ -49,19 +49,18 @@
 import { ref, watch, onMounted, computed } from 'vue';
 import EventPreviewCard from '../components/EventPreviewCard.vue';
 import Main from '../components/Main.vue';
-import { Template } from '../models/template';
-import { db } from '../integrations/persistence';
 import { TimeCalculations } from '../utils/time_calculations';
 import { colorById } from '../integrations/google_calendar';
+import { views } from '../core/main';
+import { Template } from '../models/template';
 
 const title = ref('');
 const date = ref('');
 const time = ref('');
-const selectedTemplateId = ref('');
+const selectedTemplate = ref(null);
 const templates = ref([]);
 const previewEvents = ref([]);
 const anchorIndex = ref(0);
-const selectedTemplate = ref(null);
 
 const formattedDate = computed(() => {
   const [year, month, day] = date.value.split('-');
@@ -74,22 +73,12 @@ const formattedTime = computed(() => {
 });
 
 onMounted(async () => {
-  templates.value = await db.templates.toArray();
+  templates.value = await views.availableTemplates()
 });
 
 function onTemplateChange() {
-  const raw = templates.value.find((t) => t.id === selectedTemplateId.value);
-  if (!raw) return;
-
-  selectedTemplate.value = new Template(
-    raw.name,
-    raw.durationInMinutes,
-    raw.before,
-    raw.after,
-    raw.isBusy,
-    raw.colorId
-  );
-
+  // TODO: solve "applyTo" for ES
+  selectedTemplate.value = Template.hydrate(selectedTemplate.value)
   updatePreview();
 }
 
