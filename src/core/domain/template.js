@@ -137,6 +137,7 @@ export function makeExportableTemplates(templateStore) {
 
     return all.map(({ id, ...withoutId }) => ({
       ...withoutId,
+      // TODO: there might be a better approach
       displayString: function (attr) {
         const listAttrs = ['before', 'after'];
         if (listAttrs.includes(attr)) {
