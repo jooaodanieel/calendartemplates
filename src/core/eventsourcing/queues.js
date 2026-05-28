@@ -1,13 +1,19 @@
 export class Queues {
   queues = {}
   callbacks = {}
+  store = null
 
   constructor() {
     this.queues = {}
     this.callbacks = {}
   }
 
+  setStore(store) {
+    this.store = store
+  }
+
   append(event) {
+    this.store.put(event)
     const type = event.event;
     this._ensureQueue(type)
     this.queues[type].push(event)

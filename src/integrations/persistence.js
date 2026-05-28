@@ -6,7 +6,14 @@ export const db = new Dexie('calendar-templates');
 
 db.version(1).stores({
   templates: '++id, &name',
+  events: '++id'
 });
+
+export const brokerStore = {
+  put: async (event) => {
+    await db.events.add(event)
+  }
+}
 
 export const templateStore = {
   nextId: () => { 

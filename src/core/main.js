@@ -1,10 +1,12 @@
 import { makeCreateTemplate, makeAvailableTemplates, makeUpdateTemplateAggregate, makeExportableTemplates, makeDeleteTemplate, makeImportTemplate } from "./domain/template";
-import { command, reactTo } from "./eventsourcing/broker";
+import { command, queues, reactTo } from "./eventsourcing/broker";
 
 export const useCases = {}
 export const views = {}
 
-export function scaffold(templateStore) {
+export function scaffold(templateStore, brokerStore) {
+  queues.setStore(brokerStore)
+
   useCases["createTemplate"] = command(makeCreateTemplate(templateStore))
   useCases["deleteTemplate"] = command(makeDeleteTemplate(templateStore))
   useCases["importTemplate"] = command(makeImportTemplate(templateStore))

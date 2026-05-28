@@ -1,6 +1,6 @@
 import { Queues } from "./queues";
 
-const queues = new Queues()
+export const queues = new Queues()
 
 const broker = {
   publish: (event) => {
