@@ -25,3 +25,7 @@ dist-ssr
 
 
 .env
+
+
+src/core/core.js
+src/core/draft.md

@@ -7,10 +7,10 @@
 
     <div class="field">
       <label>Template</label>
-      <select v-model="selectedTemplateId" @change="onTemplateChange">
+      <select v-model="selectedTemplate">
         <option disabled value="">Scegli...</option>
-        <option v-for="t in templates" :key="t.id" :value="t.id">
-          {{ t.name }}
+        <option v-for="(template, name) in templates" :key="name" :value="template">
+          {{ name }}
         </option>
       </select>
     </div>
@@ -49,19 +49,16 @@
 import { ref, watch, onMounted, computed } from 'vue';
 import EventPreviewCard from '../components/EventPreviewCard.vue';
 import Main from '../components/Main.vue';
-import { Template } from '../models/template';
-import { db } from '../integrations/persistence';
-import { TimeCalculations } from '../utils/time_calculations';
 import { colorById } from '../integrations/google_calendar';
+import { useCases, views } from '../core/main';
 
 const title = ref('');
 const date = ref('');
 const time = ref('');
-const selectedTemplateId = ref('');
+const selectedTemplate = ref(null);
 const templates = ref([]);
 const previewEvents = ref([]);
 const anchorIndex = ref(0);
-const selectedTemplate = ref(null);
 
 const formattedDate = computed(() => {
   const [year, month, day] = date.value.split('-');
@@ -74,42 +71,33 @@ const formattedTime = computed(() => {
 });
 
 onMounted(async () => {
-  templates.value = await db.templates.toArray();
+  templates.value = await views.availableTemplates()
 });
 
-function onTemplateChange() {
-  const raw = templates.value.find((t) => t.id === selectedTemplateId.value);
-  if (!raw) return;
-
-  selectedTemplate.value = new Template(
-    raw.name,
-    raw.durationInMinutes,
-    raw.before,
-    raw.after,
-    raw.isBusy,
-    raw.colorId
-  );
-
-  updatePreview();
-}
-
-function updatePreview() {
+async function calculatePreview() {
   if (!selectedTemplate.value || !date.value || !time.value) return;
 
-  const events = selectedTemplate.value.applyTo(
+  useCases.applyTemplateTo({
+    template: selectedTemplate.value,
+    label: title.value || selectedTemplate.value.name,
+    day: formattedDate.value,
+    time: formattedTime.value
+  })
+
+  previewEvents.value = await views.preview(
     title.value || selectedTemplate.value.name,
     formattedDate.value,
     formattedTime.value
-  );
+  )
 
-  const sorted = TimeCalculations.sortEvents(events);
-  previewEvents.value = sorted;
-  anchorIndex.value = sorted.findIndex(
+  if (previewEvents.value.length == 0) return
+
+  anchorIndex.value = previewEvents.value.findIndex(
     (e) => e.label === (title.value || selectedTemplate.value.name)
   );
 }
 
-watch([title, date, time], updatePreview);
+watch([selectedTemplate, date, time], calculatePreview)
 
 const SMART_EVENTS_CONFIRMED_EVENT = 'smart-events-confirmed';
 const emit = defineEmits([SMART_EVENTS_CONFIRMED_EVENT]);

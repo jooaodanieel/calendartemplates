@@ -49,7 +49,7 @@ import { ref, onMounted, computed } from 'vue';
 import { Template } from '../models/template';
 import Snackbar from '../components/Snackbar.vue';
 import Main from '../components/Main.vue';
-import { TemplateDAO } from '../integrations/persistence';
+import { useCases, views } from '../core/main';
 
 const templates = ref([]);
 const attrs = computed(() => Object.keys(new Template()));
@@ -57,35 +57,28 @@ const importJson = ref('');
 
 const snackbarRef = ref('');
 
-const emit = defineEmits(['template-imported']);
-
 onMounted(async () => {
-  templates.value = await TemplateDAO.all();
+  templates.value = await views.exportableTemplates()
 });
 
 function copyRowToClipboard(template) {
-  const { id, ...withoutId } = template;
-  navigator.clipboard.writeText(JSON.stringify(withoutId));
+  navigator.clipboard.writeText(JSON.stringify(template));
   snackbarRef.value.show("JSON coppiato nell'area di trasferimento");
 }
 
 async function deleteRow(template) {
-  const templateRecord = await TemplateDAO.findByName(template.name);
-  await templateRecord.delete();
-  templates.value = await TemplateDAO.all();
+  await useCases.deleteTemplate(template)
+  templates.value = await views.exportableTemplates()
 
   snackbarRef.value.show('Template cancellato');
 }
 
-function load() {
+async function load() {
   if (!importJson.value) return;
-  try {
-    const parsed = JSON.parse(importJson.value);
-    emit('template-imported', parsed);
-    importJson.value = '';
-  } catch {
-    emit('import-error');
-  }
+
+  await useCases.importTemplate(importJson.value)
+  templates.value = await views.exportableTemplates()
+  importJson.value = '';
 }
 </script>
 

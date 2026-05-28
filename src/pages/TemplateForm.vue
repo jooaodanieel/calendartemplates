@@ -30,7 +30,7 @@
       <div class="anchor-card" :style="{ backgroundColor: color && color.hex }">
         <span>{{ name || 'Nome template' }}</span>
         <span class="duration">({{ duration || 0 }} min)</span>
-        <span>{{ isBusy ? "occupato" : "libero" }}</span>
+        <span>{{ isBusy ? 'occupato' : 'libero' }}</span>
       </div>
 
       <BlockList :blocks="afterBlocks" @add-block="addAfter" />
@@ -44,9 +44,10 @@
 import { ref } from 'vue';
 import BlockList from '../components/BlockList.vue';
 import Main from '../components/Main.vue';
-import { Template } from '../models/template';
 import { googleEventColors } from '../integrations/google_calendar';
 import ColorPicker from '../components/ColorPicker.vue';
+import TaskTemplateForm from '../components/TaskTemplateForm.vue';
+import { useCases } from '../core/main';
 
 const name = ref('');
 const duration = ref(null);
@@ -59,43 +60,47 @@ const TEMPLATE_CREATED_EVENT = 'template-created';
 const emit = defineEmits([TEMPLATE_CREATED_EVENT]);
 
 function addBefore({ name, isBusy, durationInMinutes }) {
-  const builder = Template.builder()
-    .for(name)
-    .markAsBusy(isBusy)
-    .withDurationMinutes(durationInMinutes);
-
-  beforeBlocks.value.unshift(builder);
+  beforeBlocks.value.unshift({ name, isBusy, durationInMinutes });
 }
 
 function addAfter({ name, isBusy, durationInMinutes }) {
-  const builder = Template.builder()
-    .for(name)
-    .markAsBusy(isBusy)
-    .withDurationMinutes(durationInMinutes);
-
-  afterBlocks.value.push(builder);
+  afterBlocks.value.push({ name, isBusy, durationInMinutes });
 }
 
 function create() {
   if (!name.value || !duration.value) return;
 
-  let builder = Template.builder()
-    .for(name.value)
-    .withDurationMinutes(duration.value)
-    .coloredWith(color.value)
-    .markAsBusy(isBusy.value);
-
-  for (const blockBuilder of beforeBlocks.value) {
-    builder = builder.precededBy(blockBuilder);
+  const template = {
+    name: name.value,
+    durationInMinutes: duration.value,
+    colorId: color.value.id,
+    isBusy: isBusy.value,
+    before: [],
+    after: [],
+    tasks: []
   }
 
-  for (const blockBuilder of afterBlocks.value) {
-    builder = builder.followedBy(blockBuilder);
+  for (const block of beforeBlocks.value) {
+    template.before.push({
+      name: block.name,
+      isBusy: block.isBusy,
+      durationInMinutes: block.durationInMinutes
+    })
   }
 
-  const newTemplate = builder.build();
+  for (const block of afterBlocks.value) {
+    template.after.push({
+      name: block.name,
+      isBusy: block.isBusy,
+      durationInMinutes: block.durationInMinutes
+    })
+  }
 
-  emit(TEMPLATE_CREATED_EVENT, newTemplate);
+  for (const task of tasks.value) {
+    template.tasks.push(task)
+  }
+
+  useCases.createTemplate(template)
   name.value = '';
   duration.value = null;
   beforeBlocks.value = [];

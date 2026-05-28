@@ -4,12 +4,21 @@ import { localStorage as ls } from '../utils/local_storage';
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const SCOPES =
-  'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+  'https://www.googleapis.com/auth/calendar.events ' +
+  'https://www.googleapis.com/auth/userinfo.email ' +
+  'https://www.googleapis.com/auth/userinfo.profile ' +
+  'https://www.googleapis.com/auth/tasks';
 
 export const USER_INFO_API_URL =
   'https://www.googleapis.com/oauth2/v3/userinfo';
 export const EVENT_API_URL =
   'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+
+export const TASK_LISTS_URL =
+  'https://tasks.googleapis.com/tasks/v1/users/@me/lists';
+
+export const taskApiURlForList = (lid) =>
+  `https://tasks.googleapis.com//tasks/v1/lists/${lid}/tasks`;
 
 let tokenClient = null;
 export const accessToken = ref(null);
@@ -116,10 +125,38 @@ export const flushToGoogleCalendar = async function (smartEvents) {
   }
 };
 
+export const flushToGoogleTasks = async function (smartTasks) {
+  if (!isSignedIn()) await signIn();
+
+  const flush = async function (tsk) {
+    return await http.postTask(accessToken.value, tsk);
+  };
+
+  const retryAfterReLoggingIn = async (task) => {
+    ls.deleteToken();
+    ls.deleteUser();
+
+    accessToken.value = null;
+    userInfo.value = null;
+
+    await signIn();
+    await flush(task);
+  };
+
+  for (const task of smartTasks) {
+    const response = await flush(task);
+
+    switch (response.status) {
+      case 401:
+        await retryAfterReLoggingIn(task);
+    }
+  }
+};
+
+const CAL_TEMP_TAG = '\n\n---\n#caltemp';
+
 export const smartEventToGoogleEvent = (smartEvent) => {
   const { label, isBusy } = smartEvent;
-
-  const CAL_TEMP_TAG = '\n\n---\n#caltemp';
 
   return {
     summary: label,
@@ -134,5 +171,16 @@ export const smartEventToGoogleEvent = (smartEvent) => {
       dateTime: smartEvent.endDateToISO(),
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     },
+  };
+};
+
+export const smartTaskToGoogleTask = (smartTask) => {
+  const { label, description } = smartTask;
+
+  return {
+    title: label,
+    notes: (description || '') + CAL_TEMP_TAG,
+    status: 'needsAction',
+    due: smartTask.dateToISO(),
   };
 };
