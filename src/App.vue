@@ -36,6 +36,12 @@ onMounted(() => {
       snackbarRef.value.show(message)
     })
 
+  reactTo("TEMPLATE_IMPORTING_FAILED")
+    .with(({ payload: { error } }) => {
+      const message = `Template Importing error: ${error}`
+      snackbarRef.value.show(message)
+    })
+
   const script = document.querySelector('script[src*="accounts.google.com"]');
 
   if (window.google) {
@@ -65,31 +71,12 @@ async function onSmartEventsConfirmed(smartEvents) {
 
   snackbarRef.value.show(message);
 }
-
-async function onTemplateImported(template) {
-  await TemplateDAO.create(template);
-
-  const message = 'Template caricato: ' + template.name;
-
-  snackbarRef.value.show(message);
-}
-
-function onTemplateImportError() {
-  const message = 'Template NON caricato, JSON mal formattato';
-
-  snackbarRef.value.show(message);
-  console.log(message);
-}
 </script>
 
 <template>
   <Navbar />
 
-  <RouterView
-    @smart-events-confirmed="onSmartEventsConfirmed"
-    @template-imported="onTemplateImported"
-    @import-error="onTemplateImportError"
-  />
+  <RouterView @smart-events-confirmed="onSmartEventsConfirmed" />
 
   <Snackbar ref="snackbarRef" />
 </template>

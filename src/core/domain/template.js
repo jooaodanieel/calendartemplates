@@ -1,6 +1,53 @@
 import di from "../eventsourcing/dependencyInjection"
 import { Event } from "../eventsourcing/event"
 
+export function makeImportTemplate(templateStore) {
+  const ensureTemplateStore = di.ensure(templateStore, "templateStore")
+
+  ensureTemplateStore.hasFunction("nextId")
+  ensureTemplateStore.hasFunction("hasName")
+
+  async function validate({
+    name,
+    durationInMinutes
+  }) {
+    const isNameUsed = await templateStore.hasName(name)
+    if (isNameUsed)
+      return Event("TEMPLATE_IMPORTING_FAILED", "v1")
+        .addPayload({ error: `name '${name}' already in use` })
+        .build()
+
+    const lastsMoreThanZero = durationInMinutes > 0
+    if (!lastsMoreThanZero)
+      return Event("TEMPLATE_IMPORTING_FAILED", "v1")
+        .addPayload({ error: "duration must be greater than 0" })
+        .build()
+    
+    return null
+  }
+
+  return async (templateJson) => {
+    try {
+      const createTemplateForm = JSON.parse(templateJson)
+
+      return (await validate(createTemplateForm)) || Event("TEMPLATE_IMPORTED", "v1")
+      .addPayload({ id: templateStore.nextId() })
+      .addPayload({ name: createTemplateForm.name })
+      .addPayload({ durationInMinutes: createTemplateForm.durationInMinutes })
+      .addPayload({ before: createTemplateForm.before })
+      .addPayload({ after: createTemplateForm.after })
+      .addPayload({ isBusy: createTemplateForm.isBusy })
+      .addPayload({ colorId: createTemplateForm.colorId })
+      .addPayload({ tasks: createTemplateForm.tasks })
+      .build()
+    } catch (error) {
+      return Event("TEMPLATE_IMPORTING_FAILED", "v1")
+        .addPayload({ error: error.message })
+        .build()
+    }
+  }
+}
+
 export function makeCreateTemplate(templateStore) {
   const ensureTemplateStore = di.ensure(templateStore, "templateStore")
 
@@ -50,6 +97,7 @@ export function makeUpdateTemplateAggregate(templateStore) {
   return async ({ event, payload }) => {
     switch (event) {
       case "TEMPLATE_CREATED":
+      case "TEMPLATE_IMPORTED":
         await templateStore.save(payload)
         break;
       

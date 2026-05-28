@@ -57,8 +57,6 @@ const importJson = ref('');
 
 const snackbarRef = ref('');
 
-const emit = defineEmits(['template-imported']);
-
 onMounted(async () => {
   templates.value = await views.exportableTemplates()
 });
@@ -75,15 +73,12 @@ async function deleteRow(template) {
   snackbarRef.value.show('Template cancellato');
 }
 
-function load() {
+async function load() {
   if (!importJson.value) return;
-  try {
-    const parsed = JSON.parse(importJson.value);
-    emit('template-imported', parsed);
-    importJson.value = '';
-  } catch {
-    emit('import-error');
-  }
+
+  await useCases.importTemplate(importJson.value)
+  templates.value = await views.exportableTemplates()
+  importJson.value = '';
 }
 </script>
 
