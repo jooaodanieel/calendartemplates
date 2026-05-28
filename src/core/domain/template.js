@@ -162,7 +162,7 @@ export function makeDeleteTemplate(templateStore) {
     const hasName = await templateStore.hasName(name)
 
     if (!hasName)
-      return Event("TEMPLATE_DELETION_ERROR", "v1")
+      return Event("TEMPLATE_DELETION_FAILED", "v1")
         .addPayload({ error: `template named '${name}' doesn't exist` })
         .addPayload({ template })
         .build()

@@ -30,7 +30,7 @@ onMounted(() => {
       }
     )
 
-  reactTo("TEMPLATE_DELETION_ERROR")
+  reactTo("TEMPLATE_DELETION_FAILED")
     .with(({ payload: { error }}) => {
       const message = `Template Deletion error: ${error}`
       snackbarRef.value.show(message)
