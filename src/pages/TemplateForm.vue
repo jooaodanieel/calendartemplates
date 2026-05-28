@@ -46,7 +46,6 @@ import BlockList from '../components/BlockList.vue';
 import Main from '../components/Main.vue';
 import { googleEventColors } from '../integrations/google_calendar';
 import ColorPicker from '../components/ColorPicker.vue';
-import TaskTemplateForm from '../components/TaskTemplateForm.vue';
 import { useCases } from '../core/main';
 
 const name = ref('');
