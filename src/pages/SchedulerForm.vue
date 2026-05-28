@@ -7,7 +7,7 @@
 
     <div class="field">
       <label>Template</label>
-      <select v-model="selectedTemplate" @change="onTemplateChange">
+      <select v-model="selectedTemplate">
         <option disabled value="">Scegli...</option>
         <option v-for="(template, name) in templates" :key="name" :value="template">
           {{ name }}
@@ -49,10 +49,8 @@
 import { ref, watch, onMounted, computed } from 'vue';
 import EventPreviewCard from '../components/EventPreviewCard.vue';
 import Main from '../components/Main.vue';
-import { TimeCalculations } from '../utils/time_calculations';
 import { colorById } from '../integrations/google_calendar';
-import { views } from '../core/main';
-import { Template } from '../models/template';
+import { useCases, views } from '../core/main';
 
 const title = ref('');
 const date = ref('');
@@ -76,29 +74,30 @@ onMounted(async () => {
   templates.value = await views.availableTemplates()
 });
 
-function onTemplateChange() {
-  // TODO: solve "applyTo" for ES
-  selectedTemplate.value = Template.hydrate(selectedTemplate.value)
-  updatePreview();
-}
-
-function updatePreview() {
+async function calculatePreview() {
   if (!selectedTemplate.value || !date.value || !time.value) return;
 
-  const events = selectedTemplate.value.applyTo(
+  useCases.applyTemplateTo({
+    template: selectedTemplate.value,
+    label: title.value || selectedTemplate.value.name,
+    day: formattedDate.value,
+    time: formattedTime.value
+  })
+
+  previewEvents.value = await views.preview(
     title.value || selectedTemplate.value.name,
     formattedDate.value,
     formattedTime.value
-  );
+  )
 
-  const sorted = TimeCalculations.sortEvents(events);
-  previewEvents.value = sorted;
-  anchorIndex.value = sorted.findIndex(
+  if (previewEvents.value.length == 0) return
+
+  anchorIndex.value = previewEvents.value.findIndex(
     (e) => e.label === (title.value || selectedTemplate.value.name)
   );
 }
 
-watch([title, date, time], updatePreview);
+watch([selectedTemplate, date, time], calculatePreview)
 
 const SMART_EVENTS_CONFIRMED_EVENT = 'smart-events-confirmed';
 const emit = defineEmits([SMART_EVENTS_CONFIRMED_EVENT]);

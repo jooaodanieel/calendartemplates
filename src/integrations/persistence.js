@@ -6,8 +6,21 @@ export const db = new Dexie('calendar-templates');
 
 db.version(1).stores({
   templates: '++id, &name',
-  events: '++id'
+  events: '++id',
+  previews: '++id, &[label+day+time]'
 });
+
+export const previewStore = {
+  save: async (preview) => {
+    await db.previews.add(preview)
+  },
+
+  findBy: async (label, day, time) => {
+    return await db.previews
+      .where({ label, day, time })
+      .first()
+  }
+}
 
 export const brokerStore = {
   put: async (event) => {
