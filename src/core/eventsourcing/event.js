@@ -3,7 +3,7 @@ export const Event = (type, version) => {
 
     addPayload: (newPayload) => createBuilder({ ...payload, ...newPayload }, headers),
     
-    addHeader: (newHeader) => createBuilder(payload, { ...headers, newHeader }),
+    addHeader: (newHeader) => createBuilder(payload, { ...headers, ...newHeader }),
 
     build: () => ({
       event: type,
