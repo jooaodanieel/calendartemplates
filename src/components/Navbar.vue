@@ -1,7 +1,5 @@
 <template>
   <nav class="navbar">
-    <button @click="testTask">test</button>
-
     <span v-if="!isCurrently(ROOT)">
       <RouterLink :to="{ name: ROOT }">Nuovo evento</RouterLink>
     </span>
@@ -24,16 +22,8 @@
 
 <script setup>
 import { NEW_TEMPLATE, ROOT, TEMPLATE_HUB, isCurrently } from '../router';
-import {
-  accessToken,
-  flushToGoogleTasks,
-  userInfo,
-} from '../integrations/google_calendar';
-import { SmartTask } from '../models/smart_task';
+import { accessToken, userInfo } from '../integrations/google_calendar';
 
-async function testTask() {
-  await flushToGoogleTasks([new SmartTask('test', '30/03/2026', 'Inbox')]);
-}
 </script>
 
 <style scoped>

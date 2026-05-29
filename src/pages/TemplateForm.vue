@@ -75,8 +75,7 @@ function create() {
     colorId: color.value.id,
     isBusy: isBusy.value,
     before: [],
-    after: [],
-    tasks: []
+    after: []
   }
 
   for (const block of beforeBlocks.value) {
@@ -93,10 +92,6 @@ function create() {
       isBusy: block.isBusy,
       durationInMinutes: block.durationInMinutes
     })
-  }
-
-  for (const task of tasks.value) {
-    template.tasks.push(task)
   }
 
   useCases.createTemplate(template)
