@@ -120,8 +120,6 @@ export function makePreview(previewStore) {
 
   return async (label, day, time) => {
     let res = await previewStore.findBy(label, day, time)
-    
-    if (res === undefined) res = await previewStore.findBy(label, day, time)
 
     if (res === undefined) return []
     

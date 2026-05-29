@@ -74,16 +74,7 @@ onMounted(async () => {
   templates.value = await views.availableTemplates()
 });
 
-async function calculatePreview() {
-  if (!selectedTemplate.value || !date.value || !time.value) return;
-
-  useCases.applyTemplateTo({
-    template: selectedTemplate.value,
-    label: title.value || selectedTemplate.value.name,
-    day: formattedDate.value,
-    time: formattedTime.value
-  })
-
+async function updatePreview() {
   previewEvents.value = await views.preview(
     title.value || selectedTemplate.value.name,
     formattedDate.value,
@@ -95,6 +86,19 @@ async function calculatePreview() {
   anchorIndex.value = previewEvents.value.findIndex(
     (e) => e.label === (title.value || selectedTemplate.value.name)
   );
+}
+
+async function calculatePreview() {
+  if (!selectedTemplate.value || !date.value || !time.value) return;
+
+  useCases.applyTemplateTo({
+    template: selectedTemplate.value,
+    label: title.value || selectedTemplate.value.name,
+    day: formattedDate.value,
+    time: formattedTime.value
+  })
+
+  setTimeout(updatePreview, 250)
 }
 
 watch([selectedTemplate, date, time], calculatePreview)
