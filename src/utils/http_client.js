@@ -16,8 +16,8 @@ export const httpClient = {
     return response.json();
   },
 
-  postEvent: async function (token, evt) {
-    const googleEvent = smartEventToGoogleEvent(evt);
+  postEvent: async function (token, evt, parse = false) {
+    const googleEvent = parse ? smartEventToGoogleEvent(evt) : evt;
 
     return await fetch(EVENT_API_URL, {
       method: 'POST',

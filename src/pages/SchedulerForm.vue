@@ -89,7 +89,8 @@ async function updatePreview() {
 }
 
 async function calculatePreview() {
-  if (!selectedTemplate.value || !date.value || !time.value) return;
+  if (selectedTemplate.value === null || date.value == '' || time.value == '')
+    return
 
   useCases.applyTemplateTo({
     template: selectedTemplate.value,
@@ -103,17 +104,20 @@ async function calculatePreview() {
 
 watch([selectedTemplate, date, time], calculatePreview)
 
-const SMART_EVENTS_CONFIRMED_EVENT = 'smart-events-confirmed';
-const emit = defineEmits([SMART_EVENTS_CONFIRMED_EVENT]);
 function confirm() {
-  emit(SMART_EVENTS_CONFIRMED_EVENT, previewEvents.value);
+  useCases.confirmPreview({
+    label: title.value || selectedTemplate.value.name,
+    day: formattedDate.value,
+    time: formattedTime.value
+  })
+
   title.value = '';
   date.value = '';
   time.value = '';
-  selectedTemplateId.value = '';
+  selectedTemplate.value = null;
+  templates.value = [];
   previewEvents.value = [];
   anchorIndex.value = 0;
-  selectedTemplate.value = null;
 }
 </script>
 

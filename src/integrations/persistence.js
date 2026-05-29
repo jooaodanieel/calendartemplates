@@ -19,6 +19,12 @@ export const previewStore = {
     return await db.previews
       .where({ label, day, time })
       .first()
+  },
+
+  delete: async (label, day, time) => {
+    await db.previews
+      .where({ label, day, time })
+      .delete()
   }
 }
 

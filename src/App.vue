@@ -42,6 +42,16 @@ onMounted(() => {
       snackbarRef.value.show(message)
     })
 
+  reactTo("PREVIEW_CONFIRMED")
+    .with(async ({ payload }) => {
+      await flushToGoogleCalendar(payload.events)
+      const message =
+        'eventi inviati a Google Calendar: ' +
+        payload.events.map((evt) => evt.summary).join(', ');
+
+      snackbarRef.value.show(message);
+    })
+
   const script = document.querySelector('script[src*="accounts.google.com"]');
 
   if (window.google) {
@@ -61,22 +71,12 @@ async function conductToNewTemplate() {
     snackbarRef.value.show('Ancora non hai template, creane uno');
   }
 }
-
-async function onSmartEventsConfirmed(smartEvents) {
-  await flushToGoogleCalendar(smartEvents);
-
-  const message =
-    'eventi inviati a Google Calendar: ' +
-    smartEvents.map((evt) => evt.label).join(', ');
-
-  snackbarRef.value.show(message);
-}
 </script>
 
 <template>
   <Navbar />
 
-  <RouterView @smart-events-confirmed="onSmartEventsConfirmed" />
+  <RouterView />
 
   <Snackbar ref="snackbarRef" />
 </template>

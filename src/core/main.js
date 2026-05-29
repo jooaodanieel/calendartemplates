@@ -1,4 +1,4 @@
-import { makeApplyTemplateTo, makePreview, makeUpdatePreviewAggregate } from "./domain/event";
+import { makeApplyTemplateTo, makeConfirmPreview, makePreview, makeUpdatePreviewAggregate } from "./domain/event";
 import { makeCreateTemplate, makeAvailableTemplates, makeUpdateTemplateAggregate, makeExportableTemplates, makeDeleteTemplate, makeImportTemplate } from "./domain/template";
 import { command, queues, reactTo } from "./eventsourcing/broker";
 
@@ -20,9 +20,10 @@ export function scaffold(templateStore, brokerStore, previewStore) {
   
   
   useCases["applyTemplateTo"] = command(makeApplyTemplateTo())
+  useCases["confirmPreview"] = command(makeConfirmPreview(previewStore))
 
   views["preview"] = makePreview(previewStore)
 
-  reactTo("TEMPLATE_APPLIED")
+  reactTo("TEMPLATE_APPLIED", "PREVIEW_CONFIRMED")
     .with(makeUpdatePreviewAggregate(previewStore))
 }

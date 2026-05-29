@@ -130,10 +130,63 @@ export function makePreview(previewStore) {
 }
 
 export function makeUpdatePreviewAggregate(previewStore) {
-  di.ensure(previewStore, "previewStore")
-    .hasFunction("save")
+  const ensurePreviewStore = di.ensure(previewStore, "previewStore")
   
-  return async ({ payload }) => {
-    await previewStore.save(payload)
+  ensurePreviewStore.hasFunction("save")
+  ensurePreviewStore.hasFunction("delete")
+  
+  return async ({ event, payload, meta }) => {
+    switch (event) {
+      case "TEMPLATE_APPLIED":
+        await previewStore.save(payload)
+        break;
+      
+      case "PREVIEW_CONFIRMED":
+        const { label, day, time } = meta.key
+        await previewStore.delete(label, day, time)
+        break
+    
+      default:
+        break;
+    }
+    
+  }
+}
+
+export function makeConfirmPreview(previewStore) {
+  const CAL_TEMP_TAG = '\n\n---\n#caltemp';
+
+  di.ensure(previewStore, "previewStore")
+    .hasFunction("findBy")
+
+  function dateToISO(day, time) {
+    const [d, m, y] = day.split('/').map(Number);
+    const [h, min] = time.split('.').map(Number);
+    return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00`;
+  }
+  
+  return async ({ label, day, time }) => {
+    const preview = await previewStore.findBy(label, day, time)
+
+    const events = [preview.anchorEvent, ...preview.wrappingEvents]
+      .map((evt) => ({
+        summary: evt.label,
+        transparency: evt.isBusy ? "opaque" : "transparent",
+        description: CAL_TEMP_TAG,
+        colorId: evt.colorId,
+        start: {
+          dateTime: dateToISO(evt.day, evt.time),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+        end: {
+          dateTime: dateToISO(evt.endDay, evt.endTime),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+      }))
+
+    return Event("PREVIEW_CONFIRMED", "v1")
+      .addPayload({ events })
+      .addHeader({ key: { label, day, time } })
+      .build()
   }
 }
