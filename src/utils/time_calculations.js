@@ -1,9 +1,9 @@
 export class TimeCalculations {
   // returns the day before 'deltaInMinutes' of the current moment expressed by "day" and "time"
-  // example: dayBeforeMinutes("18/03/2026", "7.10", 15) => "18/03/2026"
-  // example: dayBeforeMinutes("18/03/2026", "0.10", 30) => "17/03/2026"
+  // example: dayBeforeMinutes("18/03/2026", "7:10", 15) => "18/03/2026"
+  // example: dayBeforeMinutes("18/03/2026", "0:10", 30) => "17/03/2026"
   static dayBeforeMinutes(day, time, deltaInMinutes) {
-    const [hours, minutes] = time.split('.').map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
     const totalMinutes = hours * 60 + minutes - deltaInMinutes;
 
     if (totalMinutes >= 0) return day;
@@ -17,24 +17,24 @@ export class TimeCalculations {
   }
 
   // returns the time before 'deltaInMinutes' of the current moment expressed by "time"
-  // example: timeBeforeMinutes("7.10", 50) => "6.20"
-  // example: timeBeforeMinutes("00.10", 20) => "23.50"
+  // example: timeBeforeMinutes("7:10", 50) => "6:20"
+  // example: timeBeforeMinutes("00:10", 20) => "23:50"
   static timeBeforeMinutes(time, deltaInMinutes) {
-    const [hours, minutes] = time.split('.').map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
     let totalMinutes = hours * 60 + minutes - deltaInMinutes;
 
     totalMinutes = ((totalMinutes % 1440) + 1440) % 1440;
 
     const h = Math.floor(totalMinutes / 60);
     const m = totalMinutes % 60;
-    return `${h}.${String(m).padStart(2, '0')}`;
+    return `${h}:${String(m).padStart(2, '0')}`;
   }
 
   // returns the day after 'deltaInMinutes' have passed from the current moment expressed by "day" and "time"
-  // example: dayAfterMinutes("18/03/2026", "7.10", 50) => "18/03/2026"
-  // example: dayAfterMinutes("18/03/2026", "23.40", 30) => "19/03/2026"
+  // example: dayAfterMinutes("18/03/2026", "7:10", 50) => "18/03/2026"
+  // example: dayAfterMinutes("18/03/2026", "23:40", 30) => "19/03/2026"
   static dayAfterMinutes(day, time, deltaInMinutes) {
-    const [hours, minutes] = time.split('.').map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
     const totalMinutes = hours * 60 + minutes + deltaInMinutes;
 
     if (totalMinutes < 1440) return day;
@@ -46,17 +46,17 @@ export class TimeCalculations {
   }
 
   // returns the time after 'deltaInMinutes' have passed from the current moment expressed by "time"
-  // example: timeAfterMinutes("7.10", 50) => "8.00"
-  // example: timeAfterMinutes("23.10", 90) => "0.40"
+  // example: timeAfterMinutes("7:10", 50) => "8:00"
+  // example: timeAfterMinutes("23:10", 90) => "0:40"
   static timeAfterMinutes(time, deltaInMinutes) {
-    const [hours, minutes] = time.split('.').map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
     let totalMinutes = hours * 60 + minutes + deltaInMinutes;
 
     totalMinutes = totalMinutes % 1440;
 
     const h = Math.floor(totalMinutes / 60);
     const m = totalMinutes % 60;
-    return `${h}.${String(m).padStart(2, '0')}`;
+    return `${h}:${String(m).padStart(2, '0')}`;
   }
 
   static sortEvents(events) {
@@ -69,8 +69,8 @@ export class TimeCalculations {
         return dateA - dateB;
       }
 
-      const [hA, minA] = a.time.split('.').map(Number);
-      const [hB, minB] = b.time.split('.').map(Number);
+      const [hA, minA] = a.time.split(":").map(Number);
+      const [hB, minB] = b.time.split(":").map(Number);
 
       return hA * 60 + minA - (hB * 60 + minB);
     });

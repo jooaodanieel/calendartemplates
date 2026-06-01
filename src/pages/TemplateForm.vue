@@ -6,34 +6,31 @@
     </div>
 
     <div class="field">
-      <label>Durata (in min)</label>
-      <input v-model.number="duration" type="number" />
-    </div>
-
-    <div class="field">
       <label>Colore</label>
       <ColorPicker :colors="googleEventColors" v-model="color" />
     </div>
 
-    <div class="field">
-      <label>Mark as <strong>busy</strong></label>
-      <input type="checkbox" v-model="isBusy" />
-    </div>
+    <TemplateBlockForm
+      :references="blockRefs"
+      @block-created="addBlock"
+    />
 
-    <div class="section">
-      <BlockList
-        :blocks="beforeBlocks"
-        position="before"
-        @add-block="addBefore"
-      />
+    <div>
+      <div v-for="block in blocks" style="border: 1px solid whitesmoke; border-radius: 10px; padding: 10px 2px; margin: 5px 0px;">
+        <p>{{ block.title }} <span v-if="block.isBusy">(busy)</span></p>
+        
+        <p v-if="block.scheduling.type === 'fixed'">
+          {{ block.scheduling.start }} - {{ block.scheduling.end }}
+        </p>
 
-      <div class="anchor-card" :style="{ backgroundColor: color && color.hex }">
-        <span>{{ name || 'Nome template' }}</span>
-        <span class="duration">({{ duration || 0 }} min)</span>
-        <span>{{ isBusy ? 'occupato' : 'libero' }}</span>
+        <p v-if="block.scheduling.type === 'calculated'">
+          {{ block.scheduling.duration }} min {{ block.scheduling.diffRef }} {{ block.scheduling.reference }}
+        </p>
+
+        <p v-if="block.scheduling.type === 'dynamic'">
+          a dynamic {{ block.scheduling.duration }}-min block
+        </p>
       </div>
-
-      <BlockList :blocks="afterBlocks" @add-block="addAfter" />
     </div>
 
     <button class="create-btn" @click="create">Crea</button>
@@ -41,64 +38,36 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import BlockList from '../components/BlockList.vue';
+import { computed, ref, toRaw } from 'vue';
 import Main from '../components/Main.vue';
 import { googleEventColors } from '../integrations/google_calendar';
 import ColorPicker from '../components/ColorPicker.vue';
 import { useCases } from '../core/main';
+import TemplateBlockForm from '../components/TemplateBlockForm.vue';
 
 const name = ref('');
-const duration = ref(null);
 const color = ref(null);
-const isBusy = ref(true);
-const beforeBlocks = ref([]);
-const afterBlocks = ref([]);
+const blocks = ref([])
 
-const TEMPLATE_CREATED_EVENT = 'template-created';
-const emit = defineEmits([TEMPLATE_CREATED_EVENT]);
+const blockRefs = computed(() => blocks.value.map(b => b.title))
 
-function addBefore({ name, isBusy, durationInMinutes }) {
-  beforeBlocks.value.unshift({ name, isBusy, durationInMinutes });
-}
-
-function addAfter({ name, isBusy, durationInMinutes }) {
-  afterBlocks.value.push({ name, isBusy, durationInMinutes });
+function addBlock(block) {
+  blocks.value.push({ ...block })
 }
 
 function create() {
-  if (!name.value || !duration.value) return;
+  if (!name.value) return;
 
   const template = {
     name: name.value,
-    durationInMinutes: duration.value,
     colorId: color.value.id,
-    isBusy: isBusy.value,
-    before: [],
-    after: []
-  }
-
-  for (const block of beforeBlocks.value) {
-    template.before.push({
-      name: block.name,
-      isBusy: block.isBusy,
-      durationInMinutes: block.durationInMinutes
-    })
-  }
-
-  for (const block of afterBlocks.value) {
-    template.after.push({
-      name: block.name,
-      isBusy: block.isBusy,
-      durationInMinutes: block.durationInMinutes
-    })
+    blocks: toRaw(blocks.value)
   }
 
   useCases.createTemplate(template)
   name.value = '';
-  duration.value = null;
-  beforeBlocks.value = [];
-  afterBlocks.value = [];
+  color.value = null
+  blocks.value = []
 }
 </script>
 

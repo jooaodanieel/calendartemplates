@@ -3,113 +3,99 @@ import di from "../eventsourcing/dependencyInjection"
 import { Event } from "../eventsourcing/event"
 
 export function makeApplyTemplateTo() {
-
-  function generateAnchorEvent(label, day, time, template) {
-    const endDay = TimeCalculations.dayAfterMinutes(
+  function makeGenerateFixed(day, colorId) {
+    return (block) => ({
+      label: block.title,
       day,
-      time,
-      template.durationInMinutes
-    )
-    const endTime = TimeCalculations.timeAfterMinutes(
-      time, template.durationInMinutes
-    )
-
-    return {
-      label,
-      day,
-      time,
-      endDay,
-      endTime,
-      isBusy: template.isBusy,
-      colorId: template.colorId
-    }
+      time: block.scheduling.start,
+      endDay: day,
+      endTime: block.scheduling.end,
+      isBusy: block.isBusy,
+      colorId
+    })
   }
 
-  function generatePreEvent(refDay, refTime, preEventTemplate, colorId) {
-    const startDay = TimeCalculations.dayBeforeMinutes(
-      refDay,
-      refTime,
-      preEventTemplate.durationInMinutes
-    );
-    const startTime = TimeCalculations.timeBeforeMinutes(
-      refTime,
-      preEventTemplate.durationInMinutes
-    );
-
-    return {
-      label: preEventTemplate.name,
-      day: startDay,
-      time: startTime,
-      endDay: refDay,
-      endTime: refTime,
-      isBusy: preEventTemplate.isBusy,
+  function makeGenerateDynamic(day, time, colorId) {
+    return (block) => ({
+      label: block.title,
+      day,
+      time,
+      endDay: TimeCalculations.dayAfterMinutes(day, time, block.scheduling.duration),
+      endTime: TimeCalculations.timeAfterMinutes(time, block.scheduling.duration),
+      isBusy: block.isBusy,
       colorId
-    }
+    })
   }
 
-  function generatePostEvent(refDay, refTime, postEventTemplate, colorId) {
-    const endDay = TimeCalculations.dayAfterMinutes(
-      refDay,
-      refTime,
-      postEventTemplate.durationInMinutes
-    );
-    const endTime = TimeCalculations.timeAfterMinutes(
-      refTime,
-      postEventTemplate.durationInMinutes
-    );
+  function makeGenerateCalculated(day, time, colorId, blocks) {
+    const generate = (block) => {
+      
+      const genDynamic = makeGenerateDynamic(day, time, colorId)
+      const genFixed = makeGenerateFixed(day, colorId)
 
-    return {
-      label: postEventTemplate.name,
-      day: refDay,
-      time: refTime,
-      endDay,
-      endTime,
-      isBusy: postEventTemplate.isBusy,
-      colorId
+      const refBlock = blocks.find((b) => b.title === block.scheduling.reference)
+
+      const isAfterRef = block.scheduling.diffRef === "after"
+      const dur = block.scheduling.duration
+
+      let refEvent
+
+      switch (refBlock.scheduling.type) {
+        case "calculated":
+          refEvent = generate(refBlock)
+          break;
+        
+        case "dynamic":
+          refEvent = genDynamic(refBlock)
+          break
+        
+        default:
+          refEvent = genFixed(refBlock)
+          break;
+      }
+
+      const startDay = isAfterRef
+        ? refEvent.endDay
+        : TimeCalculations.dayBeforeMinutes(refEvent.day, refEvent.time, dur)
+      
+      const startTime = isAfterRef
+        ? refEvent.endTime
+        : TimeCalculations.timeBeforeMinutes(refEvent.time, dur)
+
+      console.log(startDay, startTime)
+      
+      return {
+        label: block.title,
+        day: startDay,
+        time: startTime,
+        endDay: TimeCalculations.dayAfterMinutes(startDay, startTime, block.scheduling.duration),
+        endTime: TimeCalculations.timeAfterMinutes(startTime, block.scheduling.duration),
+        isBusy: block.isBusy,
+        colorId
+      }
     }
+
+    return generate
   }
   
   return ({ template, label, day, time }) => {
-    const anchorEvent = generateAnchorEvent(label, day, time, template)
+    const colorId = template.colorId
 
-    let refDay = day
-    let refTime = time
+    const fixed = template.blocks
+      .filter(block => block.scheduling.type === "fixed")
+      .map(makeGenerateFixed(day, colorId))
 
-    const wrappingEvents = []
-
-    for (const preTemplate of template.before) {
-      const preEvent = generatePreEvent(refDay, refTime, preTemplate, template.colorId)
-      wrappingEvents.unshift(preEvent)
-      refDay = preEvent.day
-      refTime = preEvent.time
-    }
-
-    refDay = TimeCalculations.dayAfterMinutes(
-      day,
-      time,
-      template.durationInMinutes
-    );
-    refTime = TimeCalculations.timeAfterMinutes(
-      time,
-      template.durationInMinutes
-    );
-
-    for (const postEventTemplate of template.after) {
-      const postEvent = generatePostEvent(
-        refDay,
-        refTime,
-        postEventTemplate,
-        template.colorId
-      );
-      wrappingEvents.push(postEvent);
-      refDay = postEvent.endDay;
-      refTime = postEvent.endTime;
-    }
+    const dynamic = template.blocks
+      .filter(block => block.scheduling.type === "dynamic")
+      .map(makeGenerateDynamic(day, time, colorId))
+    
+    const calculated = template.blocks
+      .filter(block => block.scheduling.type === "calculated")
+      .map(makeGenerateCalculated(day, time, colorId, template.blocks))
 
     return Event("TEMPLATE_APPLIED", "v1")
       .addPayload({ label, day, time })
-      .addPayload({ anchorEvent })
-      .addPayload({ wrappingEvents })
+      .addPayload({ events: [...fixed, ...dynamic, ...calculated] })
       .build()
   }
 }
@@ -122,10 +108,8 @@ export function makePreview(previewStore) {
     let res = await previewStore.findBy(label, day, time)
 
     if (res === undefined) return []
-    
-    const toSort = [res.anchorEvent, ...res.wrappingEvents]
 
-    return TimeCalculations.sortEvents(toSort);
+    return TimeCalculations.sortEvents(res.events);
   }
 }
 
@@ -168,7 +152,7 @@ export function makeConfirmPreview(previewStore) {
   return async ({ label, day, time }) => {
     const preview = await previewStore.findBy(label, day, time)
 
-    const events = [preview.anchorEvent, ...preview.wrappingEvents]
+    const events = preview.events
       .map((evt) => ({
         summary: evt.label,
         transparency: evt.isBusy ? "opaque" : "transparent",

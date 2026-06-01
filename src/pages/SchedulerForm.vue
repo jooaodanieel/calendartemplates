@@ -35,7 +35,6 @@
         v-for="(event, index) in previewEvents"
         :key="index"
         :event="event"
-        :isAnchor="index === anchorIndex"
         :style="{
           backgroundColor:
             selectedTemplate && colorById[Number(selectedTemplate.colorId)],
@@ -52,13 +51,22 @@ import Main from '../components/Main.vue';
 import { colorById } from '../integrations/google_calendar';
 import { useCases, views } from '../core/main';
 
+function today() {
+  return (new Date()).toISOString().split(/[TZ]/)[0]
+}
+
+function now() {
+  const d = new Date()
+  const split = d.toLocaleTimeString().split(/:\d\d$/)
+  return split[0]
+}
+
 const title = ref('');
-const date = ref('');
-const time = ref('');
+const date = ref(today());
+const time = ref(now());
 const selectedTemplate = ref(null);
 const templates = ref([]);
 const previewEvents = ref([]);
-const anchorIndex = ref(0);
 
 const formattedDate = computed(() => {
   const [year, month, day] = date.value.split('-');
@@ -80,12 +88,6 @@ async function updatePreview() {
     formattedDate.value,
     formattedTime.value
   )
-
-  if (previewEvents.value.length == 0) return
-
-  anchorIndex.value = previewEvents.value.findIndex(
-    (e) => e.label === (title.value || selectedTemplate.value.name)
-  );
 }
 
 async function calculatePreview() {
@@ -117,7 +119,6 @@ function confirm() {
   selectedTemplate.value = null;
   templates.value = [];
   previewEvents.value = [];
-  anchorIndex.value = 0;
 }
 </script>
 
