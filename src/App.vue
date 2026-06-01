@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue';
 import Navbar from './components/Navbar.vue';
 import Snackbar from './components/Snackbar.vue';
 import { flushToGoogleCalendar } from './integrations/google_calendar';
-import { TemplateDAO, templateStore, brokerStore, previewStore } from './integrations/persistence';
+import { templateStore, brokerStore, previewStore } from './integrations/persistence';
 import { initGoogleAuth } from './integrations/google_calendar';
 import router, { NEW_TEMPLATE } from './router';
 import { scaffold } from "./core/main"
@@ -64,7 +64,7 @@ onMounted(() => {
 });
 
 async function conductToNewTemplate() {
-  const isEmpty = await TemplateDAO.isEmpty();
+  const isEmpty = await templateStore.isEmpty()
 
   if (isEmpty) {
     router.replace({ name: NEW_TEMPLATE });
