@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import Navbar from './components/Navbar.vue';
 import Snackbar from './components/Snackbar.vue';
-import { flushToGoogleCalendar } from './integrations/google_calendar';
+import { flushToGoogleCalendar, flushToGoogleTasks } from './integrations/google_calendar';
 import { templateStore, brokerStore, previewStore } from './integrations/persistence';
 import { initGoogleAuth } from './integrations/google_calendar';
 import router, { NEW_TEMPLATE } from './router';
@@ -45,6 +45,7 @@ onMounted(() => {
   reactTo("PREVIEW_CONFIRMED")
     .with(async ({ payload }) => {
       await flushToGoogleCalendar(payload.events)
+      await flushToGoogleTasks(payload.tasks)
       const message =
         'eventi inviati a Google Calendar: ' +
         payload.events.map((evt) => evt.summary).join(', ');

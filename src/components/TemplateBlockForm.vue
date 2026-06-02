@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="field">
-      <label>Title</label>
+      <label>Event Title</label>
       <input v-model="title" placeholder="es. Corso palestra" />
     </div>
 

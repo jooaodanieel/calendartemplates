@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue';
+import { ref, watch, onMounted, computed, toRaw } from 'vue';
 import EventPreviewCard from '../components/EventPreviewCard.vue';
 import Main from '../components/Main.vue';
 import { colorById } from '../integrations/google_calendar';
@@ -68,6 +68,11 @@ const selectedTemplate = ref(null);
 const templates = ref([]);
 const previewEvents = ref([]);
 
+const formattedDate = computed(() => {
+  const [y, m, d] = date.value.split("-")
+  return `${d}/${m}/${y}`
+})
+
 onMounted(async () => {
   templates.value = await views.availableTemplates()
 });
@@ -75,7 +80,7 @@ onMounted(async () => {
 async function updatePreview() {
   previewEvents.value = await views.preview(
     title.value || selectedTemplate.value.name,
-    date.value,
+    formattedDate.value,
     time.value
   )
 }
@@ -85,9 +90,9 @@ async function calculatePreview() {
     return
 
   useCases.applyTemplateTo({
-    template: selectedTemplate.value,
+    template: toRaw(selectedTemplate.value),
     label: title.value || selectedTemplate.value.name,
-    day: date.value,
+    day: formattedDate.value,
     time: time.value
   })
 
@@ -99,7 +104,7 @@ watch([selectedTemplate, date, time], calculatePreview)
 function confirm() {
   useCases.confirmPreview({
     label: title.value || selectedTemplate.value.name,
-    day: date.value,
+    day: formattedDate.value,
     time: time.value
   })
 

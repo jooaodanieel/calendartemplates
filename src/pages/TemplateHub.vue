@@ -9,6 +9,7 @@
             <tr>
               <th>Name</th>
               <th>Blocks</th>
+              <th>Tasks</th>
               <th></th>
             </tr>
           </thead>
@@ -18,6 +19,10 @@
 
               <td>
                 <TemplateBlocksCell :blocks="template.blocks" />
+              </td>
+
+              <td>
+                <TemplateTasksCell :tasks="template.tasks" />
               </td>
 
               <td class="action-buttons-cell">
@@ -54,6 +59,7 @@ import Snackbar from '../components/Snackbar.vue';
 import Main from '../components/Main.vue';
 import { useCases, views } from '../core/main';
 import TemplateBlocksCell from '../components/TemplateBlocksCell.vue';
+import TemplateTasksCell from '../components/TemplateTasksCell.vue';
 
 const templates = ref([]);
 const importJson = ref('');

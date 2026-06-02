@@ -1,4 +1,6 @@
+import { googleClient } from "../integrations/google_calendar";
 import { makeApplyTemplateTo, makeConfirmPreview, makePreview, makeUpdatePreviewAggregate } from "./domain/event";
+import { makeListTaskLists } from "./domain/task";
 import { makeCreateTemplate, makeAvailableTemplates, makeUpdateTemplateAggregate, makeExportableTemplates, makeDeleteTemplate, makeImportTemplate } from "./domain/template";
 import { command, queues, reactTo } from "./eventsourcing/broker";
 
@@ -26,4 +28,6 @@ export function scaffold(templateStore, brokerStore, previewStore) {
 
   reactTo("TEMPLATE_APPLIED", "PREVIEW_CONFIRMED")
     .with(makeUpdatePreviewAggregate(previewStore))
+  
+  views["listTaskLists"] = makeListTaskLists(googleClient)
 }

@@ -61,8 +61,6 @@ export function makeApplyTemplateTo() {
       const startTime = isAfterRef
         ? refEvent.endTime
         : TimeCalculations.timeBeforeMinutes(refEvent.time, dur)
-
-      console.log(startDay, startTime)
       
       return {
         label: block.title,
@@ -92,10 +90,18 @@ export function makeApplyTemplateTo() {
     const calculated = template.blocks
       .filter(block => block.scheduling.type === "calculated")
       .map(makeGenerateCalculated(day, time, colorId, template.blocks))
+    
+    const tasks = template.tasks
+      .map(({ label, list }) => ({
+        label,
+        list,
+        day
+      }))
 
     return Event("TEMPLATE_APPLIED", "v1")
       .addPayload({ label, day, time })
       .addPayload({ events: [...fixed, ...dynamic, ...calculated] })
+      .addPayload({ tasks })
       .build()
   }
 }
@@ -145,8 +151,8 @@ export function makeConfirmPreview(previewStore) {
 
   function dateToISO(day, time) {
     const [d, m, y] = day.split('/').map(Number);
-    const [h, min] = time.split('.').map(Number);
-    return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00`;
+    const [h, min] = time.split(':').map(Number);
+    return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00Z`;
   }
   
   return async ({ label, day, time }) => {
@@ -167,9 +173,19 @@ export function makeConfirmPreview(previewStore) {
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         },
       }))
+    
+    const tasks = preview.tasks
+      .map(t => ({
+        title: t.label,
+        notes: CAL_TEMP_TAG,
+        status: "needsAction",
+        due: dateToISO(t.day, "00:00"),
+        listId: t.list.id
+      }))
 
     return Event("PREVIEW_CONFIRMED", "v1")
       .addPayload({ events })
+      .addPayload({ tasks })
       .addHeader({ key: { label, day, time } })
       .build()
   }

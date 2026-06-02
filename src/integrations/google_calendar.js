@@ -125,7 +125,7 @@ export const flushToGoogleCalendar = async function (smartEvents) {
   }
 };
 
-export const flushToGoogleTasks = async function (smartTasks) {
+export const flushToGoogleTasks = async function (tasks) {
   if (!isSignedIn()) await signIn();
 
   const flush = async function (tsk) {
@@ -143,7 +143,7 @@ export const flushToGoogleTasks = async function (smartTasks) {
     await flush(task);
   };
 
-  for (const task of smartTasks) {
+  for (const task of tasks) {
     const response = await flush(task);
 
     switch (response.status) {
@@ -184,3 +184,11 @@ export const smartTaskToGoogleTask = (smartTask) => {
     due: smartTask.dateToISO(),
   };
 };
+
+export const googleClient = {
+  fetchTaskLists: async () => {
+    const { items } = await http.getTaskLists(accessToken.value)
+    
+    return items.map(({ id, title }) => ({ id, title }))
+  }
+}

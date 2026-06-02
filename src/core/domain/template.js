@@ -31,6 +31,7 @@ export function makeImportTemplate(templateStore) {
         .addPayload({ name: createTemplateForm.name })
         .addPayload({ colorId: createTemplateForm.colorId })
         .addPayload({ blocks: createTemplateForm.blocks })
+        .addPayload({ tasks: createTemplateForm.tasks })
         .build()
     } catch (error) {
       return Event("TEMPLATE_IMPORTING_FAILED", "v1")
@@ -69,6 +70,7 @@ export function makeCreateTemplate(templateStore) {
           .addPayload({ name: createTemplateForm.name })
           .addPayload({ colorId: createTemplateForm.colorId })
           .addPayload({ blocks: createTemplateForm.blocks })
+          .addPayload({ tasks: createTemplateForm.tasks })
           .build()
   }
 }

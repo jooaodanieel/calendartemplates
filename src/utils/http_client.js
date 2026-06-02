@@ -4,7 +4,6 @@ import {
   USER_INFO_API_URL,
   taskApiURlForList,
   TASK_LISTS_URL,
-  smartTaskToGoogleTask,
 } from '../integrations/google_calendar';
 
 export const httpClient = {
@@ -41,17 +40,11 @@ export const httpClient = {
     return await resp.json();
   },
 
-  postTask: async function (token, smartTask) {
-    const resp = await httpClient.getTaskLists(token);
-    
-    if (resp.status < 200 || resp.status >= 300) return resp;
-
-    const { id } = resp.items.find((list) =>
-      list.title.match(smartTask.listName)
-    );
+  postTask: async function (token, task) {  
+    const id = task.listId
     const url = taskApiURlForList(id);
 
-    const googleTask = smartTaskToGoogleTask(smartTask);
+    const { listId, ...noListId } = task
 
     return await fetch(url, {
       method: 'POST',
@@ -59,7 +52,7 @@ export const httpClient = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(googleTask),
+      body: JSON.stringify(noListId),
     });
   },
 };

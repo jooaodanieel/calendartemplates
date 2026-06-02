@@ -15,24 +15,38 @@
       @block-created="addBlock"
     />
 
-    <div>
-      <div v-for="block in blocks" style="border: 1px solid whitesmoke; border-radius: 10px; padding: 10px 2px; margin: 5px 0px;">
-        <p>{{ block.title }} <span v-if="block.isBusy">(busy)</span></p>
-        
-        <p v-if="block.scheduling.type === 'fixed'">
-          {{ block.scheduling.start }} - {{ block.scheduling.end }}
-        </p>
+    <TemplateTaskForm
+      @task-created="addTask"
+    />
 
-        <p v-if="block.scheduling.type === 'calculated'">
-          {{ block.scheduling.duration }} min {{ block.scheduling.diffRef }} {{ block.scheduling.reference }}
-        </p>
+    <div class="view-panel">
+      <div>
+        <h3>Event Templates</h3>
+        <div v-for="block in blocks" class="card">
+          <p>{{ block.title }} <span v-if="block.isBusy">(busy)</span></p>
+          
+          <p v-if="block.scheduling.type === 'fixed'">
+            {{ block.scheduling.start }} - {{ block.scheduling.end }}
+          </p>
 
-        <p v-if="block.scheduling.type === 'dynamic'">
-          a dynamic {{ block.scheduling.duration }}-min block
-        </p>
+          <p v-if="block.scheduling.type === 'calculated'">
+            {{ block.scheduling.duration }} min {{ block.scheduling.diffRef }} {{ block.scheduling.reference }}
+          </p>
+
+          <p v-if="block.scheduling.type === 'dynamic'">
+            a dynamic {{ block.scheduling.duration }}-min block
+          </p>
+        </div>
+      </div>
+      
+      <div>
+        <h3>Task Templates</h3>
+        <div v-for="task in tasks" class="card">
+          <p>{{ task.label }} [{{ task.list.title }}]</p>
+        </div>
       </div>
     </div>
-
+    
     <button class="create-btn" @click="create">Crea</button>
   </Main>
 </template>
@@ -44,15 +58,21 @@ import { googleEventColors } from '../integrations/google_calendar';
 import ColorPicker from '../components/ColorPicker.vue';
 import { useCases } from '../core/main';
 import TemplateBlockForm from '../components/TemplateBlockForm.vue';
+import TemplateTaskForm from '../components/TemplateTaskForm.vue';
 
 const name = ref('');
 const color = ref(null);
 const blocks = ref([])
+const tasks = ref([])
 
 const blockRefs = computed(() => blocks.value.map(b => b.title))
 
 function addBlock(block) {
   blocks.value.push({ ...block })
+}
+
+function addTask(task) {
+  tasks.value.push({ ...task })
 }
 
 function create() {
@@ -61,17 +81,32 @@ function create() {
   const template = {
     name: name.value,
     colorId: color.value.id,
-    blocks: toRaw(blocks.value)
+    blocks: toRaw(blocks.value),
+    tasks: toRaw(tasks.value)
   }
 
   useCases.createTemplate(template)
   name.value = '';
   color.value = null
   blocks.value = []
+  tasks.value = []
 }
 </script>
 
 <style scoped>
+.view-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.card {
+  border: 1px solid whitesmoke;
+  border-radius: 10px;
+  padding: 10px 2px;
+  margin: 5px 0px;
+}
+
 .color-picker {
   min-width: 10px;
   min-height: 10px;
