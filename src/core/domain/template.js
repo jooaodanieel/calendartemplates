@@ -7,39 +7,31 @@ export function makeImportTemplate(templateStore) {
   ensureTemplateStore.hasFunction("nextId")
   ensureTemplateStore.hasFunction("hasName")
 
-  async function validate({
-    name,
-    durationInMinutes
-  }) {
+  async function validate({ name }) {
     const isNameUsed = await templateStore.hasName(name)
-    if (isNameUsed)
-      return Event("TEMPLATE_IMPORTING_FAILED", "v1")
-        .addPayload({ error: `name '${name}' already in use` })
-        .build()
 
-    const lastsMoreThanZero = durationInMinutes > 0
-    if (!lastsMoreThanZero)
-      return Event("TEMPLATE_IMPORTING_FAILED", "v1")
-        .addPayload({ error: "duration must be greater than 0" })
-        .build()
-    
-    return null
+    if (!isNameUsed)
+      return { valid: true }
+
+    return { valid: false, error: `name '${name}' already in use` }
   }
 
   return async (templateJson) => {
     try {
       const createTemplateForm = JSON.parse(templateJson)
+      const { valid, error } = await validate(createTemplateForm)
+      
+      if (!valid)
+        return Event("TEMPLATE_IMPORTING_FAILED", "v1")
+        .addPayload({ error })
+        .build()
 
-      return (await validate(createTemplateForm)) || Event("TEMPLATE_IMPORTED", "v1")
-      .addPayload({ id: templateStore.nextId() })
-      .addPayload({ name: createTemplateForm.name })
-      .addPayload({ durationInMinutes: createTemplateForm.durationInMinutes })
-      .addPayload({ before: createTemplateForm.before })
-      .addPayload({ after: createTemplateForm.after })
-      .addPayload({ isBusy: createTemplateForm.isBusy })
-      .addPayload({ colorId: createTemplateForm.colorId })
-      .addPayload({ tasks: createTemplateForm.tasks })
-      .build()
+      return Event("TEMPLATE_IMPORTED", "v1")
+        .addPayload({ id: templateStore.nextId() })
+        .addPayload({ name: createTemplateForm.name })
+        .addPayload({ colorId: createTemplateForm.colorId })
+        .addPayload({ blocks: createTemplateForm.blocks })
+        .build()
     } catch (error) {
       return Event("TEMPLATE_IMPORTING_FAILED", "v1")
         .addPayload({ error: error.message })
@@ -128,20 +120,7 @@ export function makeExportableTemplates(templateStore) {
   return async () => {
     const all = await templateStore.all()
 
-    return all.map(({ id, ...withoutId }) => ({
-      ...withoutId,
-      // TODO: there might be a better approach
-      displayString: function (attr) {
-        const listAttrs = ['before', 'after'];
-        if (listAttrs.includes(attr)) {
-          return this[attr]
-            .map((sub) => `${sub.name} (${sub.durationInMinutes} min)`)
-            .join(', ');
-        }
-
-        return this[attr];
-      }
-    }))
+    return all.map(({ id, ...withoutId }) => ({ ...withoutId }))
   }
 }
 

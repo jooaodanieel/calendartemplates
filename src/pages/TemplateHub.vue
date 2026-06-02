@@ -7,15 +7,19 @@
         <table>
           <thead>
             <tr>
-              <th v-for="attr in attrs">{{ attr }}</th>
+              <th>Name</th>
+              <th>Blocks</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="template of templates">
-              <td v-for="attr in attrs">
-                {{ template.displayString(attr) }}
+              <td>{{ template.name }}</td>
+
+              <td>
+                <TemplateBlocksCell :blocks="template.blocks" />
               </td>
+
               <td class="action-buttons-cell">
                 <button
                   class="copy-button"
@@ -45,14 +49,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { Template } from '../models/template';
+import { ref, onMounted } from 'vue';
 import Snackbar from '../components/Snackbar.vue';
 import Main from '../components/Main.vue';
 import { useCases, views } from '../core/main';
+import TemplateBlocksCell from '../components/TemplateBlocksCell.vue';
 
 const templates = ref([]);
-const attrs = computed(() => Object.keys(new Template()));
 const importJson = ref('');
 
 const snackbarRef = ref('');
@@ -88,10 +91,14 @@ async function load() {
   width: 100%;
 }
 
-table * {
+table td, table th {
   border: 1px solid white;
   padding: 3px 10px;
+}
+
+table * {
   font-size: 0.85em;
+  line-height: 1.5em;
 }
 
 td {
