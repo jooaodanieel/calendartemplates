@@ -68,16 +68,6 @@ const selectedTemplate = ref(null);
 const templates = ref([]);
 const previewEvents = ref([]);
 
-const formattedDate = computed(() => {
-  const [year, month, day] = date.value.split('-');
-  return `${day}/${month}/${year}`;
-});
-
-const formattedTime = computed(() => {
-  const [hours, minutes] = time.value.split(':');
-  return `${'' + Number(hours)}.${minutes}`;
-});
-
 onMounted(async () => {
   templates.value = await views.availableTemplates()
 });
@@ -85,8 +75,8 @@ onMounted(async () => {
 async function updatePreview() {
   previewEvents.value = await views.preview(
     title.value || selectedTemplate.value.name,
-    formattedDate.value,
-    formattedTime.value
+    date.value,
+    time.value
   )
 }
 
@@ -97,8 +87,8 @@ async function calculatePreview() {
   useCases.applyTemplateTo({
     template: selectedTemplate.value,
     label: title.value || selectedTemplate.value.name,
-    day: formattedDate.value,
-    time: formattedTime.value
+    day: date.value,
+    time: time.value
   })
 
   setTimeout(updatePreview, 250)
@@ -109,8 +99,8 @@ watch([selectedTemplate, date, time], calculatePreview)
 function confirm() {
   useCases.confirmPreview({
     label: title.value || selectedTemplate.value.name,
-    day: formattedDate.value,
-    time: formattedTime.value
+    day: date.value,
+    time: time.value
   })
 
   title.value = '';
