@@ -1,4 +1,4 @@
-import { TimeCalculations } from "../../utils/time_calculations"
+import { minutesAfter, minutesBefore, sortByTime, toISO } from "../../utils/datetime"
 import di from "../eventsourcing/dependencyInjection"
 import { Event } from "../eventsourcing/event"
 
@@ -15,23 +15,27 @@ export function makeApplyTemplateTo() {
     })
   }
 
-  function makeGenerateDynamic(day, time, colorId) {
-    return (block) => ({
-      label: block.title,
-      day,
-      time,
-      endDay: TimeCalculations.dayAfterMinutes(day, time, block.scheduling.duration),
-      endTime: TimeCalculations.timeAfterMinutes(time, block.scheduling.duration),
-      isBusy: block.isBusy,
-      colorId
-    })
+  function makeGenerateDynamic(calDT, colorId) {
+    return (block) => {
+      const endCalDT = minutesAfter(calDT, block.scheduling.duration)
+
+      return {
+        label: block.title,
+        day: calDT.day,
+        time: calDT.time,
+        endDay: endCalDT.day,
+        endTime: endCalDT.time,
+        isBusy: block.isBusy,
+        colorId
+      }
+    }
   }
 
-  function makeGenerateCalculated(day, time, colorId, blocks) {
+  function makeGenerateCalculated(calDT, colorId, blocks) {
     const generate = (block) => {
       
-      const genDynamic = makeGenerateDynamic(day, time, colorId)
-      const genFixed = makeGenerateFixed(day, colorId)
+      const genDynamic = makeGenerateDynamic(calDT, colorId)
+      const genFixed = makeGenerateFixed(calDT.day, colorId)
 
       const refBlock = blocks.find((b) => b.title === block.scheduling.reference)
 
@@ -54,20 +58,24 @@ export function makeApplyTemplateTo() {
           break;
       }
 
+      const startCalDT = minutesBefore(refEvent, dur)
+
       const startDay = isAfterRef
         ? refEvent.endDay
-        : TimeCalculations.dayBeforeMinutes(refEvent.day, refEvent.time, dur)
+        : startCalDT.day
       
       const startTime = isAfterRef
         ? refEvent.endTime
-        : TimeCalculations.timeBeforeMinutes(refEvent.time, dur)
+        : startCalDT.time
+      
+      const endCalDT = minutesAfter({ day: startDay, time: startTime }, dur)
       
       return {
         label: block.title,
         day: startDay,
         time: startTime,
-        endDay: TimeCalculations.dayAfterMinutes(startDay, startTime, block.scheduling.duration),
-        endTime: TimeCalculations.timeAfterMinutes(startTime, block.scheduling.duration),
+        endDay: endCalDT.day,
+        endTime: endCalDT.time,
         isBusy: block.isBusy,
         colorId
       }
@@ -76,30 +84,30 @@ export function makeApplyTemplateTo() {
     return generate
   }
   
-  return ({ template, label, day, time }) => {
+  return ({ template, label, calDT }) => {
     const colorId = template.colorId
 
     const fixed = template.blocks
       .filter(block => block.scheduling.type === "fixed")
-      .map(makeGenerateFixed(day, colorId))
+      .map(makeGenerateFixed(calDT.day, colorId))
 
     const dynamic = template.blocks
       .filter(block => block.scheduling.type === "dynamic")
-      .map(makeGenerateDynamic(day, time, colorId))
+      .map(makeGenerateDynamic(calDT, colorId))
     
     const calculated = template.blocks
       .filter(block => block.scheduling.type === "calculated")
-      .map(makeGenerateCalculated(day, time, colorId, template.blocks))
+      .map(makeGenerateCalculated(calDT, colorId, template.blocks))
     
     const tasks = template.tasks
       .map(({ label, list }) => ({
         label,
         list,
-        day
+        day: calDT.day
       }))
 
     return Event("TEMPLATE_APPLIED", "v1")
-      .addPayload({ label, day, time })
+      .addPayload({ label, calDateTime: calDT })
       .addPayload({ events: [...fixed, ...dynamic, ...calculated] })
       .addPayload({ tasks })
       .build()
@@ -110,12 +118,12 @@ export function makePreview(previewStore) {
   di.ensure(previewStore, "previewStore")
     .hasFunction("findBy")
 
-  return async (label, day, time) => {
-    let res = await previewStore.findBy(label, day, time)
+  return async (label, calDT) => {
+    let res = await previewStore.findBy(label, calDT)
 
     if (res === undefined) return []
 
-    return TimeCalculations.sortEvents(res.events);
+    return sortByTime(res.events)
   }
 }
 
@@ -132,8 +140,8 @@ export function makeUpdatePreviewAggregate(previewStore) {
         break;
       
       case "PREVIEW_CONFIRMED":
-        const { label, day, time } = meta.key
-        await previewStore.delete(label, day, time)
+        const { label, calDateTime } = meta.key
+        await previewStore.delete(label, calDateTime)
         break
     
       default:
@@ -148,15 +156,11 @@ export function makeConfirmPreview(previewStore) {
 
   di.ensure(previewStore, "previewStore")
     .hasFunction("findBy")
-
-  function dateToISO(day, time) {
-    const [d, m, y] = day.split('/').map(Number);
-    const [h, min] = time.split(':').map(Number);
-    return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00Z`;
-  }
   
-  return async ({ label, day, time }) => {
-    const preview = await previewStore.findBy(label, day, time)
+  return async ({ label, calDateTime }) => {
+    const preview = await previewStore.findBy(label, calDateTime)
+
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
     const events = preview.events
       .map((evt) => ({
@@ -165,12 +169,12 @@ export function makeConfirmPreview(previewStore) {
         description: CAL_TEMP_TAG,
         colorId: evt.colorId,
         start: {
-          dateTime: dateToISO(evt.day, evt.time),
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          dateTime: toISO({day: evt.day, time: evt.time}),
+          timeZone,
         },
         end: {
-          dateTime: dateToISO(evt.endDay, evt.endTime),
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          dateTime: toISO({ day: evt.endDay, time: evt.endTime}),
+          timeZone,
         },
       }))
     
@@ -179,14 +183,14 @@ export function makeConfirmPreview(previewStore) {
         title: t.label,
         notes: CAL_TEMP_TAG,
         status: "needsAction",
-        due: dateToISO(t.day, "00:00"),
+        due: toISO({ day: t.day, time: "00:00" }),
         listId: t.list.id
       }))
 
     return Event("PREVIEW_CONFIRMED", "v1")
       .addPayload({ events })
       .addPayload({ tasks })
-      .addHeader({ key: { label, day, time } })
+      .addHeader({ key: { label, calDateTime } })
       .build()
   }
 }

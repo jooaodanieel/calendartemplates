@@ -26,7 +26,7 @@
           <p>{{ block.title }} <span v-if="block.isBusy">(busy)</span></p>
           
           <p v-if="block.scheduling.type === 'fixed'">
-            {{ block.scheduling.start }} - {{ block.scheduling.end }}
+            {{ block.scheduling.start.time }} - {{ block.scheduling.end.time }}
           </p>
 
           <p v-if="block.scheduling.type === 'calculated'">

@@ -1,28 +1,29 @@
 import { v7 as uuid } from "uuid"
 import Dexie from 'dexie';
+import { toString } from "../utils/datetime";
 
 export const db = new Dexie('calendar-templates');
 
 db.version(1).stores({
   templates: '++id, &name',
   events: '++id',
-  previews: '++id, &[label+day+time]'
+  previews: '++id, &[label+cdt]'
 });
 
 export const previewStore = {
   save: async (preview) => {
-    await db.previews.add(preview)
+    const { calDateTime, ...rest } = preview
+    await db.previews.add({ ...rest, cdt: toString(calDateTime)})
   },
 
-  findBy: async (label, day, time) => {
+  findBy: async (label, calDateTime) => {
     return await db.previews
-      .where({ label, day, time })
-      .first()
+      .get({ label, cdt: toString(calDateTime) })
   },
 
-  delete: async (label, day, time) => {
+  delete: async (label, calDateTime) => {
     await db.previews
-      .where({ label, day, time })
+      .where({ label, cdt: toString(calDateTime) })
       .delete()
   }
 }

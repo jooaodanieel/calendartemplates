@@ -17,12 +17,12 @@
 
     <div class="field">
       <label>Data</label>
-      <input v-model="date" type="date" />
+      <input v-model="inputDate" type="date" />
     </div>
 
     <div class="field">
       <label>Ora</label>
-      <input v-model="time" type="time" />
+      <input v-model="inputTime" type="time" />
     </div>
 
     <div v-if="previewEvents.length" class="preview-section">
@@ -50,28 +50,16 @@ import EventPreviewCard from '../components/EventPreviewCard.vue';
 import Main from '../components/Main.vue';
 import { colorById } from '../integrations/google_calendar';
 import { useCases, views } from '../core/main';
-
-function today() {
-  return (new Date()).toISOString().split(/[TZ]/)[0]
-}
-
-function now() {
-  const d = new Date()
-  const split = d.toLocaleTimeString().split(/:\d\d$/)
-  return split[0]
-}
+import { calDateTimeFromHtmlInputs, now, toHtmlInputDate } from '../utils/datetime';
 
 const title = ref('');
-const date = ref(today());
-const time = ref(now());
+const inputDate = ref(toHtmlInputDate(now()));
+const inputTime = ref(now().time);
 const selectedTemplate = ref(null);
 const templates = ref([]);
 const previewEvents = ref([]);
 
-const formattedDate = computed(() => {
-  const [y, m, d] = date.value.split("-")
-  return `${d}/${m}/${y}`
-})
+const calDateTime = computed(() => calDateTimeFromHtmlInputs(inputDate.value, inputTime.value))
 
 onMounted(async () => {
   templates.value = await views.availableTemplates()
@@ -80,39 +68,35 @@ onMounted(async () => {
 async function updatePreview() {
   previewEvents.value = await views.preview(
     title.value || selectedTemplate.value.name,
-    formattedDate.value,
-    time.value
+    calDateTime.value
   )
 }
 
 async function calculatePreview() {
-  if (selectedTemplate.value === null || date.value == '' || time.value == '')
+  if (selectedTemplate.value === null || inputDate.value == '' || inputTime.value == '')
     return
 
   useCases.applyTemplateTo({
     template: toRaw(selectedTemplate.value),
     label: title.value || selectedTemplate.value.name,
-    day: formattedDate.value,
-    time: time.value
+    calDT: calDateTime.value
   })
 
   setTimeout(updatePreview, 250)
 }
 
-watch([selectedTemplate, date, time], calculatePreview)
+watch([selectedTemplate, inputDate, inputTime], calculatePreview)
 
 function confirm() {
   useCases.confirmPreview({
     label: title.value || selectedTemplate.value.name,
-    day: formattedDate.value,
-    time: time.value
+    calDateTime: calDateTime.value
   })
 
   title.value = '';
-  date.value = '';
-  time.value = '';
+  inputDate.value = toHtmlInputDate(now());
+  inputTime.value = now().time;
   selectedTemplate.value = null;
-  templates.value = [];
   previewEvents.value = [];
 }
 </script>

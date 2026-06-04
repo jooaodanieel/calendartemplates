@@ -33,12 +33,12 @@
     <div v-if="isFixed">
       <div class="field">
         <label>Start</label>
-        <input v-model="start" type="time" />
+        <input v-model="inputStart" type="time" />
       </div>
 
       <div class="field">
         <label>End</label>
-        <input v-model="end" type="time" />
+        <input v-model="inputEnd" type="time" />
       </div>
     </div>
 
@@ -84,14 +84,15 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, toRaw } from 'vue';
+import { calTimeFromHtmlInput } from '../utils/datetime';
 
 const title = ref('')
 const isBusy = ref(false)
 const schedulingType = ref("fixed")
 
-const start = ref("")
-const end = ref("")
+const inputStart = ref("")
+const inputEnd = ref("")
 const reference = ref("")
 const diffRef = ref("before")
 const duration = ref(0)
@@ -107,13 +108,17 @@ const isFixed = computed(() => schedulingType.value === "fixed")
 const isCalculated = computed(() => schedulingType.value === "calculated")
 const isDynamic = computed(() => schedulingType.value === "dynamic")
 
+const calStart = computed(() => calTimeFromHtmlInput(inputStart.value))
+const calEnd = computed(() => calTimeFromHtmlInput(inputEnd.value))
+
 const scheduling = computed(() => {
-  if (isFixed.value)
+  if (isFixed.value) {
     return {
       type: schedulingType.value,
-      start: start.value,
-      end: end.value
+      start: toRaw(calStart.value.time),
+      end: toRaw(calEnd.value.time)
     }
+  }
 
   if (isCalculated.value)
     return {
@@ -143,10 +148,10 @@ function notify() {
   title.value = ''
   isBusy.value = false
   schedulingType.value = "fixed"
-  start.value = ''
-  end.value = ''
+  inputStart.value = ''
+  inputEnd.value = ''
   reference.value = ''
-  diffRef.value = ''
+  diffRef.value = 'before'
   duration.value = 0
 }
 
