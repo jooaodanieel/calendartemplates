@@ -59,6 +59,12 @@ const selectedTemplate = ref(null);
 const templates = ref([]);
 const previewEvents = ref([]);
 
+const dynamicTitle = computed(() => {
+  const emptyTitle = title.value == ""
+
+  return emptyTitle ? selectedTemplate.value.name : title.value
+})
+
 const calDateTime = computed(() => calDateTimeFromHtmlInputs(inputDate.value, inputTime.value))
 
 onMounted(async () => {
@@ -67,7 +73,7 @@ onMounted(async () => {
 
 async function updatePreview() {
   previewEvents.value = await views.preview(
-    title.value || selectedTemplate.value.name,
+    dynamicTitle.value,
     calDateTime.value
   )
 }
@@ -78,7 +84,7 @@ async function calculatePreview() {
 
   useCases.applyTemplateTo({
     template: toRaw(selectedTemplate.value),
-    label: title.value || selectedTemplate.value.name,
+    label: dynamicTitle.value,
     calDT: calDateTime.value
   })
 
@@ -89,7 +95,7 @@ watch([selectedTemplate, inputDate, inputTime], calculatePreview)
 
 function confirm() {
   useCases.confirmPreview({
-    label: title.value || selectedTemplate.value.name,
+    label: dynamicTitle.value,
     calDateTime: calDateTime.value
   })
 

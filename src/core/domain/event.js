@@ -15,12 +15,12 @@ export function makeApplyTemplateTo() {
     })
   }
 
-  function makeGenerateDynamic(calDT, colorId) {
+  function makeGenerateDynamic(calDT, colorId, label) {
     return (block) => {
       const endCalDT = minutesAfter(calDT, block.scheduling.duration)
 
       return {
-        label: block.title,
+        label,
         day: calDT.day,
         time: calDT.time,
         endDay: endCalDT.day,
@@ -93,7 +93,7 @@ export function makeApplyTemplateTo() {
 
     const dynamic = template.blocks
       .filter(block => block.scheduling.type === "dynamic")
-      .map(makeGenerateDynamic(calDT, colorId))
+      .map(makeGenerateDynamic(calDT, colorId, label))
     
     const calculated = template.blocks
       .filter(block => block.scheduling.type === "calculated")
