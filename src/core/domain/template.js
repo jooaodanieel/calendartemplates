@@ -1,27 +1,59 @@
 import di from "../eventsourcing/dependencyInjection"
 import { Event } from "../eventsourcing/event"
 
+async function validateTemplateForm({ name, blocks, tasks }, templateStore) {
+  const isNameUsed = await templateStore.hasName(name)
+  if (isNameUsed)
+    return {
+      isValid: false,
+      error: `name '${name}' already in use`
+    }
+  
+  const allBlocksAreNamed = blocks.every(({ title }) => title.length > 0)
+  if (!allBlocksAreNamed)
+    return {
+      isValid: false,
+      error: `Template has block(s) with empty name`
+    }
+  
+  const blocksWithNonPositiveDuration = blocks
+    .filter(({ scheduling }) => {
+      return scheduling.type != "fixed" && scheduling.duration <= 0
+    })
+  const irregularNames = blocksWithNonPositiveDuration
+    .map(({ title }) => title)
+    .join(", ")
+  const hasIrregularDuration = blocksWithNonPositiveDuration.length > 0
+  if (hasIrregularDuration)
+    return {
+      isValid: false,
+      error: `Blocks ${irregularNames} have irregular duration`
+    }
+  
+  const moreThanOneDynamic = blocks
+    .filter(({ scheduling }) => scheduling.type === "dynamic")
+    .length > 1
+  if (moreThanOneDynamic)
+    return {
+      isValid: false,
+      error: `Templates can have at most 1 dynamic block`
+    }
+  
+  return { isValid: true }
+}
+
 export function makeImportTemplate(templateStore) {
   const ensureTemplateStore = di.ensure(templateStore, "templateStore")
 
   ensureTemplateStore.hasFunction("nextId")
   ensureTemplateStore.hasFunction("hasName")
 
-  async function validate({ name }) {
-    const isNameUsed = await templateStore.hasName(name)
-
-    if (!isNameUsed)
-      return { valid: true }
-
-    return { valid: false, error: `name '${name}' already in use` }
-  }
-
   return async (templateJson) => {
     try {
       const createTemplateForm = JSON.parse(templateJson)
-      const { valid, error } = await validate(createTemplateForm)
+      const { isValid, error } = await validateTemplateForm(createTemplateForm, templateStore)
       
-      if (!valid)
+      if (!isValid)
         return Event("TEMPLATE_IMPORTING_FAILED", "v1")
         .addPayload({ error })
         .build()
@@ -47,21 +79,10 @@ export function makeCreateTemplate(templateStore) {
   ensureTemplateStore.hasFunction("nextId")
   ensureTemplateStore.hasFunction("hasName")
 
-  async function validate({ name }) {
-    const isNameUsed = await templateStore.hasName(name)
-    if (isNameUsed)
-      return {
-        hasError: true,
-        error: `name '${name}' already in use`
-      }
-    
-    return { hasError: false }
-  }
-
   return async (createTemplateForm) => {
-    const { hasError, error } = await validate(createTemplateForm)
+    const { isValid, error } = await validateTemplateForm(createTemplateForm, templateStore)
 
-    return hasError
+    return !isValid
       ? Event("TEMPLATE_CREATION_FAILED", "v1")
           .addPayload({ error })
           .build()
