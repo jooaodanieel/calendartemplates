@@ -183,7 +183,7 @@ export function makeConfirmPreview(previewStore) {
         title: t.label,
         notes: CAL_TEMP_TAG,
         status: "needsAction",
-        due: toISO({ day: t.day, time: "00:00" }),
+        due: toISO({ day: t.day, time: "12:00" }),
         listId: t.list.id
       }))
 
