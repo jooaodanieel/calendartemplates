@@ -1,9 +1,5 @@
 <template>
   <Main title="Nuovo evento">
-    <div class="field">
-      <label>Titolo</label>
-      <input v-model="title" placeholder="es. Skill X" />
-    </div>
 
     <div class="field">
       <label>Template</label>
@@ -23,6 +19,11 @@
     <div class="field">
       <label>Ora</label>
       <input v-model="inputTime" type="time" />
+    </div>
+
+    <div v-if="titleToSet" class="field">
+      <label>Titolo</label>
+      <input v-model="title" placeholder="es. Skill X" />
     </div>
 
     <div v-if="previewEvents.length" class="preview-section">
@@ -59,6 +60,15 @@ const selectedTemplate = ref(null);
 const templates = ref([]);
 const previewEvents = ref([]);
 
+const titleToSet = computed(() => {
+  if (!selectedTemplate.value) return false
+
+  const dynamicBlock = selectedTemplate.value.blocks
+    .find(({ scheduling }) => scheduling.type === "dynamic")
+
+  return dynamicBlock !== undefined
+})
+
 const dynamicTitle = computed(() => {
   const emptyTitle = title.value == ""
 
@@ -91,7 +101,7 @@ async function calculatePreview() {
   setTimeout(updatePreview, 250)
 }
 
-watch([selectedTemplate, inputDate, inputTime], calculatePreview)
+watch([selectedTemplate, inputDate, inputTime, title], calculatePreview)
 
 function confirm() {
   useCases.confirmPreview({
