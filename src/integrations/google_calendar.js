@@ -1,6 +1,6 @@
 import { ref } from 'vue';
-import { httpClient as http } from '../utils/http_client';
-import { localStorage as ls } from '../utils/local_storage';
+import { httpClient as http } from '@/utils/http_client';
+import { localStorage as ls } from '@/utils/local_storage';
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const SCOPES =

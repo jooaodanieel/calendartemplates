@@ -1,4 +1,4 @@
-import { ensure } from "../../eventsourcing/dependencyInjection"
+import { ensure } from "@/eventsourcing/dependencyInjection"
 
 export function makeListTaskLists(googleClient) {
   ensure(googleClient, "googleClient")

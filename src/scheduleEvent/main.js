@@ -1,4 +1,4 @@
-import { command, reactTo } from "../eventsourcing/broker"
+import { command, reactTo } from "@/eventsourcing/broker"
 import { makeApplyTemplateTo, makeConfirmPreview, makePreview, makeUpdatePreviewAggregate } from "./core/event"
 import { makeAvailableTemplates } from "./core/template"
 

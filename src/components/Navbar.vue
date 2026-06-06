@@ -21,8 +21,8 @@
 </template>
 
 <script setup>
-import { NEW_TEMPLATE, ROOT, TEMPLATE_HUB, isCurrently } from '../router';
-import { accessToken, userInfo, signIn } from '../integrations/google_calendar';
+import { NEW_TEMPLATE, ROOT, TEMPLATE_HUB, isCurrently } from '@/router';
+import { accessToken, userInfo, signIn } from '@/integrations/google_calendar';
 
 </script>
 

@@ -5,7 +5,7 @@ import {
   taskApiURlForList,
   TASK_LISTS_URL,
   signIn,
-} from '../integrations/google_calendar';
+} from '@/integrations/google_calendar';
 
 export const httpClient = {
   getUserInfo: async function (token) {

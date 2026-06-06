@@ -1,6 +1,6 @@
 import { v7 as uuid } from "uuid"
 import Dexie from 'dexie';
-import { toString } from "../utils/datetime";
+import { toString } from "@/utils/datetime";
 
 export const db = new Dexie('calendar-templates');
 

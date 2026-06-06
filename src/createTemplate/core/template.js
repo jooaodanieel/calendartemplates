@@ -1,5 +1,5 @@
-import { ensure } from "../../eventsourcing/dependencyInjection"
-import { Event } from "../../eventsourcing/event"
+import { ensure } from "@/eventsourcing/dependencyInjection"
+import { Event } from "@/eventsourcing/event"
 
 async function validateTemplateForm({ name, blocks, tasks }, templateStore) {
   const isNameUsed = await templateStore.hasName(name)
