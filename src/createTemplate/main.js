@@ -1,4 +1,4 @@
-import { command, reactTo } from "../../core/eventsourcing/broker";
+import { command, reactTo } from "../eventsourcing/broker";
 import { makeListTaskLists } from "./core/task";
 import { makeCreateTemplate, makeDeleteTemplate, makeExportableTemplates, makeImportTemplate, makeUpdateTemplateAggregate } from "./core/template";
 

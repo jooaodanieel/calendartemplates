@@ -54,8 +54,8 @@
 <script setup>
 import { computed, ref, toRaw } from 'vue';
 
-import Main from '../../../components/Main.vue';
-import { googleEventColors } from '../../../integrations/google_calendar.js';
+import Main from '../../components/Main.vue';
+import { googleEventColors } from '../../integrations/google_calendar.js';
 
 import ColorPicker from '../components/ColorPicker.vue';
 import TemplateBlockForm from '../components/TemplateBlockForm.vue';

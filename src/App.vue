@@ -6,8 +6,8 @@ import { flushToGoogleCalendar, flushToGoogleTasks, googleClient } from './integ
 import { templateStore, brokerStore, previewStore } from './integrations/persistence';
 import { initGoogleAuth } from './integrations/google_calendar';
 import router, { NEW_TEMPLATE } from './router';
-import { scaffold } from "./core/main"
-import { reactTo } from './core/eventsourcing/broker';
+import { scaffold } from "./main"
+import { reactTo } from './eventsourcing/broker.js';
 
 const snackbarRef = ref(null);
 

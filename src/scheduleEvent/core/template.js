@@ -1,4 +1,4 @@
-import { ensure } from "../../../core/eventsourcing/dependencyInjection"
+import { ensure } from "../../eventsourcing/dependencyInjection"
 
 export function makeAvailableTemplates(templateStore) {
   ensure(templateStore, "templateStore")

@@ -1,6 +1,6 @@
-import { minutesAfter, minutesBefore, sortByTime, toISO } from "../../../utils/datetime"
-import { ensure } from "../../../core/eventsourcing/dependencyInjection"
-import { Event } from "../../../core/eventsourcing/event"
+import { minutesAfter, minutesBefore, sortByTime, toISO } from "../../utils/datetime"
+import { ensure } from "../../eventsourcing/dependencyInjection"
+import { Event } from "../../eventsourcing/event"
 
 export function makeApplyTemplateTo() {
   function makeGenerateFixed(day, colorId) {
