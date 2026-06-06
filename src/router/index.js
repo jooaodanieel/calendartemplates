@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import TemplateForm from '../pages/TemplateForm.vue';
-import SchedulerForm from '../pages/SchedulerForm.vue';
-import TemplateHub from '../pages/TemplateHub.vue';
+import TemplateForm from '../slices/createTemplate/pages/TemplateForm.vue';
+import SchedulerForm from '../slices/scheduleEvent/pages/SchedulerForm.vue';
+import TemplateHub from '../slices/createTemplate/pages/TemplateHub.vue';
 
 export const ROOT = 'root';
 export const NEW_TEMPLATE = 'new template';

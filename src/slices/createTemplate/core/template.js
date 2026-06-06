@@ -1,5 +1,5 @@
-import di from "../eventsourcing/dependencyInjection"
-import { Event } from "../eventsourcing/event"
+import { ensure } from "../../../core/eventsourcing/dependencyInjection"
+import { Event } from "../../../core/eventsourcing/event"
 
 async function validateTemplateForm({ name, blocks, tasks }, templateStore) {
   const isNameUsed = await templateStore.hasName(name)
@@ -39,11 +39,15 @@ async function validateTemplateForm({ name, blocks, tasks }, templateStore) {
       error: `Templates can have at most 1 dynamic block`
     }
   
+  // TODO: complement validations
+  // fixed blocks have start < end (utils/datetime.js)
+  // tasks have labels/title
+  
   return { isValid: true }
 }
 
 export function makeImportTemplate(templateStore) {
-  const ensureTemplateStore = di.ensure(templateStore, "templateStore")
+  const ensureTemplateStore = ensure(templateStore, "templateStore")
 
   ensureTemplateStore.hasFunction("nextId")
   ensureTemplateStore.hasFunction("hasName")
@@ -74,7 +78,7 @@ export function makeImportTemplate(templateStore) {
 }
 
 export function makeCreateTemplate(templateStore) {
-  const ensureTemplateStore = di.ensure(templateStore, "templateStore")
+  const ensureTemplateStore = ensure(templateStore, "templateStore")
 
   ensureTemplateStore.hasFunction("nextId")
   ensureTemplateStore.hasFunction("hasName")
@@ -97,7 +101,7 @@ export function makeCreateTemplate(templateStore) {
 }
 
 export function makeUpdateTemplateAggregate(templateStore) {
-  const ensureTemplateStore = di.ensure(templateStore, "templateStore")
+  const ensureTemplateStore = ensure(templateStore, "templateStore")
 
   ensureTemplateStore.hasFunction("save")
   ensureTemplateStore.hasFunction("delete")
@@ -121,23 +125,8 @@ export function makeUpdateTemplateAggregate(templateStore) {
   }
 }
 
-export function makeAvailableTemplates(templateStore) {
-  di.ensure(templateStore, "templateStore")
-    .hasFunction("all")
-  
-  return async () => {
-    const templates = await templateStore.all()
-
-    return templates.reduce((indexedByName, currentTemplate) => {
-      const current = {}
-      current[currentTemplate.name] = currentTemplate
-      return { ...indexedByName, ...current}
-    }, {})
-  }
-}
-
 export function makeExportableTemplates(templateStore) {
-  di.ensure(templateStore, "templateStore")
+  ensure(templateStore, "templateStore")
     .hasFunction("all")
   
   return async () => {
@@ -148,7 +137,7 @@ export function makeExportableTemplates(templateStore) {
 }
 
 export function makeDeleteTemplate(templateStore) {
-  const ensureTemplateStore = di.ensure(templateStore, "templateStore")
+  const ensureTemplateStore = ensure(templateStore, "templateStore")
     
   ensureTemplateStore.hasFunction("hasName")
   ensureTemplateStore.hasFunction("findByName")

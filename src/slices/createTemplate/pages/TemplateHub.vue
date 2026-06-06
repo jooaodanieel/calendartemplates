@@ -55,11 +55,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import Snackbar from '../components/Snackbar.vue';
-import Main from '../components/Main.vue';
-import { useCases, views } from '../core/main';
+import Snackbar from '../../../components/Snackbar.vue';
+import Main from '../../../components/Main.vue';
 import TemplateBlocksCell from '../components/TemplateBlocksCell.vue';
 import TemplateTasksCell from '../components/TemplateTasksCell.vue';
+import { useCases, views } from '../main';
 
 const templates = ref([]);
 const importJson = ref('');

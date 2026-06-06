@@ -20,7 +20,7 @@
 
 <script setup>
 import { onMounted, ref, toRaw } from 'vue';
-import { views } from '../core/main';
+import { views } from '../main';
 
 const lists = ref([])
 const list = ref(null)

@@ -47,11 +47,11 @@
 
 <script setup>
 import { ref, watch, onMounted, computed, toRaw } from 'vue';
+import Main from '../../../components/Main.vue';
+import { colorById } from '../../../integrations/google_calendar';
+import { calDateTimeFromHtmlInputs, now, toHtmlInputDate } from '../../../utils/datetime';
 import EventPreviewCard from '../components/EventPreviewCard.vue';
-import Main from '../components/Main.vue';
-import { colorById } from '../integrations/google_calendar';
-import { useCases, views } from '../core/main';
-import { calDateTimeFromHtmlInputs, now, toHtmlInputDate } from '../utils/datetime';
+import { useCases, views } from '../main';
 
 const title = ref('');
 const inputDate = ref(toHtmlInputDate(now()));

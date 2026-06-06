@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import Navbar from './components/Navbar.vue';
 import Snackbar from './components/Snackbar.vue';
-import { flushToGoogleCalendar, flushToGoogleTasks } from './integrations/google_calendar';
+import { flushToGoogleCalendar, flushToGoogleTasks, googleClient } from './integrations/google_calendar';
 import { templateStore, brokerStore, previewStore } from './integrations/persistence';
 import { initGoogleAuth } from './integrations/google_calendar';
 import router, { NEW_TEMPLATE } from './router';
@@ -12,7 +12,7 @@ import { reactTo } from './core/eventsourcing/broker';
 const snackbarRef = ref(null);
 
 onMounted(() => {
-  scaffold(templateStore, brokerStore, previewStore)
+  scaffold(templateStore, brokerStore, previewStore, googleClient)
 
   reactTo("TEMPLATE_CREATED")
     .with(

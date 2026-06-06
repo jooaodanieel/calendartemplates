@@ -1,6 +1,6 @@
-import { minutesAfter, minutesBefore, sortByTime, toISO } from "../../utils/datetime"
-import di from "../eventsourcing/dependencyInjection"
-import { Event } from "../eventsourcing/event"
+import { minutesAfter, minutesBefore, sortByTime, toISO } from "../../../utils/datetime"
+import { ensure } from "../../../core/eventsourcing/dependencyInjection"
+import { Event } from "../../../core/eventsourcing/event"
 
 export function makeApplyTemplateTo() {
   function makeGenerateFixed(day, colorId) {
@@ -115,7 +115,7 @@ export function makeApplyTemplateTo() {
 }
 
 export function makePreview(previewStore) {
-  di.ensure(previewStore, "previewStore")
+  ensure(previewStore, "previewStore")
     .hasFunction("findBy")
 
   return async (label, calDT) => {
@@ -128,7 +128,7 @@ export function makePreview(previewStore) {
 }
 
 export function makeUpdatePreviewAggregate(previewStore) {
-  const ensurePreviewStore = di.ensure(previewStore, "previewStore")
+  const ensurePreviewStore = ensure(previewStore, "previewStore")
   
   ensurePreviewStore.hasFunction("save")
   ensurePreviewStore.hasFunction("delete")
@@ -154,7 +154,7 @@ export function makeUpdatePreviewAggregate(previewStore) {
 export function makeConfirmPreview(previewStore) {
   const CAL_TEMP_TAG = '\n\n---\n#caltemp';
 
-  di.ensure(previewStore, "previewStore")
+  ensure(previewStore, "previewStore")
     .hasFunction("findBy")
   
   return async ({ label, calDateTime }) => {
