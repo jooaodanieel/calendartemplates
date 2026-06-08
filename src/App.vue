@@ -5,9 +5,10 @@ import Snackbar from './components/Snackbar.vue';
 import { flushToGoogleCalendar, flushToGoogleTasks, googleClient } from './integrations/google_calendar';
 import { templateStore, brokerStore, previewStore } from './integrations/persistence';
 import { initGoogleAuth } from './integrations/google_calendar';
-import router, { NEW_TEMPLATE } from './router';
+import router, { NEW_TEMPLATE, SCHEDULE } from './router';
 import { scaffold } from "./main"
 import { reactTo } from './eventsourcing/broker.js';
+import { localStorage } from './utils/local_storage.js';
 
 const snackbarRef = ref(null);
 
@@ -65,11 +66,21 @@ onMounted(() => {
 });
 
 async function conductToNewTemplate() {
+  const hasVisited = localStorage.hasVisited()
+
+  if (!hasVisited) {
+    localStorage.markVisited()
+    router.replace({ name: ROOT });
+    return
+  }
+
   const isEmpty = await templateStore.isEmpty()
 
   if (isEmpty) {
     router.replace({ name: NEW_TEMPLATE });
     snackbarRef.value.show('Ancora non hai template, creane uno');
+  } else {
+    router.replace({ name: SCHEDULE })
   }
 }
 </script>
