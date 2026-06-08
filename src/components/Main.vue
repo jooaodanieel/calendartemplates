@@ -3,6 +3,10 @@
     <h2>{{ title }}</h2>
     <slot></slot>
   </main>
+  <footer>
+    <hr>
+    <small>Calendar Templates - <a target="_blank" href="https://github.com/jooaodanieel/calendartemplates/tree/v1.0.1">v1.0.1</a></small>
+  </footer>
 </template>
 
 <script setup>
