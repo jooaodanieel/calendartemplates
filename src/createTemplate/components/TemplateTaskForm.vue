@@ -1,18 +1,16 @@
 <template>
   <div class="wrapper">
-    <div class="field">
-      <label>Task List</label>
+    <InputField label="Task List">
       <select class="field" v-model="list" @click="load">
         <option v-for="list in lists" :value="list">
           {{ list.title }}
         </option>
       </select>
-    </div>
+    </InputField>
 
-    <div class="field">
-      <label>Label</label>
+    <InputField label="Label">
       <input type="text" v-model="label">
-    </div>
+    </InputField>
 
     <input type="button" value="done" @click="notify">
   </div>
@@ -21,6 +19,7 @@
 <script setup>
 import { onMounted, ref, toRaw } from 'vue';
 import { views } from '../main';
+import InputField from '@/components/InputField.vue';
 
 const lists = ref([])
 const list = ref(null)

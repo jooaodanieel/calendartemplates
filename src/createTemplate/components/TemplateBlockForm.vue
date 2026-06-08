@@ -1,17 +1,16 @@
 <template>
   <div class="wrapper">
-    <div class="field">
-      <label>Event Title</label>
+    <InputField label="Event Title">
       <input v-model="title" placeholder="es. Corso palestra" />
-    </div>
+    </InputField>
 
     <div class="field">
       <label>Mark as <strong>busy</strong></label>
       <input type="checkbox" v-model="isBusy" />
     </div>
 
-    <div class="field radios">
-      <label>Type of Scheduling</label>
+    <!-- <div class="field radios"> -->
+    <InputField label="Type of Scheduling">
       <div class="radiogroup">
         <label>
           <input type="radio" v-model="schedulingType" value="fixed">
@@ -28,7 +27,8 @@
           dynamic
         </label>
       </div>
-    </div>
+    </InputField>
+    <!-- </div> -->
 
     <div v-if="isFixed">
       <div class="field">
@@ -86,6 +86,7 @@
 <script setup>
 import { computed, ref, toRaw } from 'vue';
 import { calTimeFromHtmlInput } from '@/utils/datetime';
+import InputField from '@/components/InputField.vue';
 
 const title = ref('')
 const isBusy = ref(false)

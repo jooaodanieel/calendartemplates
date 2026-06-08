@@ -1,30 +1,26 @@
 <template>
   <Main title="Nuovo evento">
 
-    <div class="field">
-      <label>Template</label>
+    <InputField label="Template">
       <select v-model="selectedTemplate">
         <option disabled value="">Scegli...</option>
         <option v-for="(template, name) in templates" :key="name" :value="template">
           {{ name }}
         </option>
       </select>
-    </div>
+    </InputField>
 
-    <div class="field">
-      <label>Data</label>
+    <InputField label="Data">
       <input v-model="inputDate" type="date" />
-    </div>
+    </InputField>
 
-    <div class="field">
-      <label>Ora</label>
+    <InputField label="Ora">
       <input v-model="inputTime" type="time" />
-    </div>
+    </InputField>
 
-    <div v-if="titleToSet" class="field">
-      <label>Titolo</label>
+    <InputField v-if="titleToSet" label="Titolo">
       <input v-model="title" placeholder="es. Skill X" />
-    </div>
+    </InputField>
 
     <div v-if="previewEvents.length" class="preview-section">
       <div class="preview-header">
@@ -52,6 +48,7 @@ import { colorById } from '@/integrations/google_calendar.js';
 import { calDateTimeFromHtmlInputs, now, toHtmlInputDate } from '@/utils/datetime.js';
 import EventPreviewCard from '../components/EventPreviewCard.vue';
 import { useCases, views } from '../main.js';
+import InputField from '@/components/InputField.vue';
 
 const title = ref('');
 const inputDate = ref(toHtmlInputDate(now()));

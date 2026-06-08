@@ -1,14 +1,12 @@
 <template>
   <Main title="Nuovo template">
-    <div class="field">
-      <label>Nome</label>
+    <InputField label="nome">
       <input v-model="name" placeholder="es. Corso palestra" />
-    </div>
+    </InputField>
 
-    <div class="field">
-      <label>Colore</label>
+    <InputField label="Colore">
       <ColorPicker :colors="googleEventColors" v-model="color" />
-    </div>
+    </InputField>
 
     <TemplateBlockForm
       :references="blockRefs"
@@ -55,6 +53,7 @@
 import { computed, ref, toRaw } from 'vue';
 
 import Main from '@/components/Main.vue';
+import InputField from '@/components/InputField.vue';
 import { googleEventColors } from '@/integrations/google_calendar.js';
 
 import ColorPicker from '../components/ColorPicker.vue';
