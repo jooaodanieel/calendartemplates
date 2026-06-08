@@ -5,7 +5,7 @@
   </main>
   <footer>
     <hr>
-    <small>Calendar Templates - <a target="_blank" href="https://github.com/jooaodanieel/calendartemplates/tree/v1.0.1">v1.0.1</a></small>
+    <small>Calendar Templates - <a target="_blank" href="https://github.com/jooaodanieel/calendartemplates/tree/v1.0.2">v1.0.2</a></small>
   </footer>
 </template>
 

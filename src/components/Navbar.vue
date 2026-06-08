@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <span v-if="!isCurrently(ROOT)">
-      <RouterLink :to="{ name: ROOT }">Nuovo evento</RouterLink>
+      <RouterLink :to="{ name: SCHEDULE }">Nuovo evento</RouterLink>
     </span>
     <span v-if="!isCurrently(NEW_TEMPLATE)">
       <RouterLink :to="{ name: NEW_TEMPLATE }">Nuovo template</RouterLink>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { NEW_TEMPLATE, ROOT, TEMPLATE_HUB, isCurrently } from '@/router';
+import { NEW_TEMPLATE, ROOT, SCHEDULE, TEMPLATE_HUB, isCurrently } from '@/router';
 import { accessToken, userInfo, signIn } from '@/integrations/google_calendar';
 
 </script>
